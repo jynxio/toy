@@ -64,24 +64,37 @@ function render() {
  * Light
  */
 // Ambient light
-const ambient_light = new three.AmbientLight(0xffffff, 0.5);
+const ambient_light = new three.AmbientLight(0xffffff, 1);
 scene.add(ambient_light);
 
 // Point light
-const point_light = new three.PointLight(0xffffff, 1);
-point_light.position.set(0, 0, 5);
-scene.add(point_light);
+const point_light_1 = new three.PointLight(0xffffff, 0.5);
+point_light_1.position.set(0, 5, 5);
+
+const point_light_2 = new three.PointLight(0xffffff, 0.5);
+point_light_2.position.set(5.8, -5, 5);
+
+const point_light_3 = new three.PointLight(0xffffff, 0.5);
+point_light_3.position.set(-5.8, -5, 5);
+
+scene.add(point_light_1, point_light_2, point_light_3);
 
 
 /**
  * Texture
  */
 const texture_loader = new three.TextureLoader();
+
 const rock_texture_ao = texture_loader.load("/textures/rock/1k/aerial_rocks_04_ao_1k.jpg");
 const rock_texture_diff = texture_loader.load("/textures/rock/1k/aerial_rocks_04_diff_1k.jpg");
 const rock_texture_disp = texture_loader.load("/textures/rock/1k/aerial_rocks_04_disp_1k.jpg");
 const rock_texture_nor = texture_loader.load("/textures/rock/1k/aerial_rocks_04_nor_gl_1k.jpg");
 const rock_texture_rough = texture_loader.load("/textures/rock/1k/aerial_rocks_04_rough_1k.jpg");
+
+const wood_texture_ao = texture_loader.load("/textures/wood/2k/wood_table_001_diff_2k.jpg");
+const wood_texture_diff = texture_loader.load("/textures/wood/2k/wood_table_001_diff_2k.jpg");
+const wood_texture_nor = texture_loader.load("/textures/wood/2k/wood_table_001_nor_gl_2k.jpg");
+const wood_texture_rough = texture_loader.load("/textures/wood/2k/wood_table_001_rough_2k.jpg");
 
 
 /**
@@ -95,6 +108,12 @@ marble_material.displacementMap = rock_texture_disp;
 marble_material.normalMap = rock_texture_nor;
 marble_material.roughnessMap = rock_texture_rough;
 
+const wood_material = new three.MeshStandardMaterial();
+wood_material.map = wood_texture_diff;
+wood_material.aoMap = wood_texture_ao;
+wood_material.normalMap = wood_texture_nor;
+wood_material.roughnessMap = wood_texture_rough;
+
 // Geometry
 const sphere_geometry = new three.SphereGeometry(0.5, 512, 512);
 sphere_geometry.setAttribute("uv2", new three.BufferAttribute(sphere_geometry.attributes.uv.array, 2));
@@ -104,4 +123,15 @@ const marble_sphere = new three.Mesh(
     sphere_geometry,
     marble_material,
 );
+marble_sphere.position.set(0.65, 0.65, 0);
+marble_sphere.scale.set(0.5, 0.5, 0.5);
 scene.add(marble_sphere);
+
+// Wood sphere
+const wood_sphere = new three.Mesh(
+    sphere_geometry,
+    wood_material
+);
+wood_sphere.position.set(0.65, -0.65, 0);
+
+scene.add(wood_sphere);
