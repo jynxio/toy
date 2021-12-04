@@ -18,13 +18,11 @@ const scene = new three.Scene();
 
 // Camera
 const camera = new three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.x = 1;
-camera.position.y = 1;
 camera.position.z = 2;
 scene.add(camera);
 
 // Renderer
-const renderer = new three.WebGLRenderer({ canvas });
+const renderer = new three.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -63,11 +61,48 @@ function render() {
 
 
 /**
+ * Light
+ */
+// Ambient light
+const ambient_light = new three.AmbientLight(0xffffff, 0.5);
+scene.add(ambient_light);
+
+// Point light
+const point_light = new three.PointLight(0xffffff, 1);
+point_light.position.set(0, 0, 5);
+scene.add(point_light);
+
+
+/**
+ * Texture
+ */
+const texture_loader = new three.TextureLoader();
+const rock_texture_ao = texture_loader.load("/textures/rock/1k/aerial_rocks_04_ao_1k.jpg");
+const rock_texture_diff = texture_loader.load("/textures/rock/1k/aerial_rocks_04_diff_1k.jpg");
+const rock_texture_disp = texture_loader.load("/textures/rock/1k/aerial_rocks_04_disp_1k.jpg");
+const rock_texture_nor = texture_loader.load("/textures/rock/1k/aerial_rocks_04_nor_gl_1k.jpg");
+const rock_texture_rough = texture_loader.load("/textures/rock/1k/aerial_rocks_04_rough_1k.jpg");
+
+
+/**
  * Object
  */
-const cube = new three.Mesh(
-    new three.BoxGeometry(),
-    new three.MeshNormalMaterial(),
-);
+// Material
+const marble_material = new three.MeshStandardMaterial();
+marble_material.map = rock_texture_diff;
+marble_material.aoMap = rock_texture_ao;
+marble_material.displacementMap = rock_texture_disp;
+marble_material.displacementScale = 0.3;
+marble_material.normalMap = rock_texture_nor;
+marble_material.roughnessMap = rock_texture_rough;
 
-scene.add(cube);
+// Geometry
+const sphere_geometry = new three.SphereGeometry(0.5, 512, 512);
+sphere_geometry.setAttribute("uv2", new three.BufferAttribute(sphere_geometry.attributes.uv.array, 2));
+
+// Marble sphere
+const marble_sphere = new three.Mesh(
+    sphere_geometry,
+    marble_material,
+);
+scene.add(marble_sphere);
