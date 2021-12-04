@@ -92,7 +92,6 @@ const marble_material = new three.MeshStandardMaterial();
 marble_material.map = rock_texture_diff;
 marble_material.aoMap = rock_texture_ao;
 marble_material.displacementMap = rock_texture_disp;
-marble_material.displacementScale = 0.3;
 marble_material.normalMap = rock_texture_nor;
 marble_material.roughnessMap = rock_texture_rough;
 
