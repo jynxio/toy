@@ -64,20 +64,13 @@ function render() {
  * Light
  */
 // Ambient light
-const ambient_light = new three.AmbientLight(0xffffff, 0.5);
+const ambient_light = new three.AmbientLight(0xffffff, 1);
 scene.add(ambient_light);
 
 // Point light
-const point_light_1 = new three.PointLight(0xffffff, 0.5);
-point_light_1.position.set(0, 5, 5);
-
-const point_light_2 = new three.PointLight(0xffffff, 0.5);
-point_light_2.position.set(5.8, -5, 5);
-
-const point_light_3 = new three.PointLight(0xffffff, 0.5);
-point_light_3.position.set(-5.8, -5, 5);
-
-scene.add(point_light_1, point_light_2, point_light_3);
+const point_light = new three.PointLight(0xfffffff, 0.5);
+point_light.position.z = 10;
+scene.add(point_light);
 
 
 /**
@@ -86,75 +79,82 @@ scene.add(point_light_1, point_light_2, point_light_3);
 const texture_loader = new three.TextureLoader();
 
 const rock_texture_ao = texture_loader.load("/textures/rock/1k/aerial_rocks_04_ao_1k.jpg");
+makeRepeat(rock_texture_ao, 2, 2);
 const rock_texture_diff = texture_loader.load("/textures/rock/1k/aerial_rocks_04_diff_1k.jpg");
+makeRepeat(rock_texture_diff, 2, 2);
 const rock_texture_disp = texture_loader.load("/textures/rock/1k/aerial_rocks_04_disp_1k.jpg");
+makeRepeat(rock_texture_disp, 2, 2);
 const rock_texture_nor_gl = texture_loader.load("/textures/rock/1k/aerial_rocks_04_nor_gl_1k.jpg");
+makeRepeat(rock_texture_nor_gl, 2, 2);
 const rock_texture_rough = texture_loader.load("/textures/rock/1k/aerial_rocks_04_rough_1k.jpg");
+makeRepeat(rock_texture_rough, 2, 2);
 
 const wood_texture_ao = texture_loader.load("/textures/wood/2k/wood_table_001_diff_2k.jpg");
+makeRepeat(wood_texture_ao, 2, 2);
 const wood_texture_diff = texture_loader.load("/textures/wood/2k/wood_table_001_diff_2k.jpg");
+makeRepeat(wood_texture_diff, 2, 2);
 const wood_texture_nor_gl = texture_loader.load("/textures/wood/2k/wood_table_001_nor_gl_2k.jpg");
+makeRepeat(wood_texture_nor_gl, 2, 2);
 const wood_texture_rough = texture_loader.load("/textures/wood/2k/wood_table_001_rough_2k.jpg");
+makeRepeat(wood_texture_rough, 2, 2);
+const wood_texture_arm = texture_loader.load("/textures/wood/2k/wood_table_001_arm_2k.jpg");
+makeRepeat(wood_texture_arm, 2, 2);
+const wood_texture_disp = texture_loader.load("/textures/wood/2k/wood_table_001_disp_2k.jpg");
+makeRepeat(wood_texture_disp, 2, 2);
 
 const metal_texture_ao = texture_loader.load("/textures/metal/1k/metal_plate_ao_1k.jpg");
-metal_texture_ao.wrapS = three.RepeatWrapping;
-metal_texture_ao.wrapT = three.RepeatWrapping;
-metal_texture_ao.repeat.set(3, 3);
+makeRepeat(metal_texture_ao, 3, 3);
 const metal_texture_diff = texture_loader.load("/textures/metal/1k/metal_plate_diff_1k.jpg");
-metal_texture_diff.wrapS = three.RepeatWrapping;
-metal_texture_diff.wrapT = three.RepeatWrapping;
-metal_texture_diff.repeat.set(3, 3);
+makeRepeat(metal_texture_diff, 3, 3);
 const metal_texture_disp = texture_loader.load("/textures/metal/1k/metal_plate_disp_1k.jpg");
-metal_texture_disp.wrapS = three.RepeatWrapping;
-metal_texture_disp.wrapT = three.RepeatWrapping;
-metal_texture_disp.repeat.set(3, 3);
+makeRepeat(metal_texture_disp, 3, 3);
 const metal_texture_nor_gl = texture_loader.load("/textures/metal/1k/metal_plate_nor_gl_1k.jpg");
-metal_texture_nor_gl.wrapS = three.RepeatWrapping;
-metal_texture_nor_gl.wrapT = three.RepeatWrapping;
-metal_texture_nor_gl.repeat.set(3, 3);
+makeRepeat(metal_texture_nor_gl, 3, 3);
 const metal_texture_metal = texture_loader.load("/textures/metal/1k/metal_plate_metal_1k.jpg");
-metal_texture_metal.wrapS = three.RepeatWrapping;
-metal_texture_metal.wrapT = three.RepeatWrapping;
-metal_texture_metal.repeat.set(3, 3);
+makeRepeat(metal_texture_metal, 3, 3);
 const metal_texture_rough = texture_loader.load("/textures/metal/1k/metal_plate_rough_1k.jpg");
-metal_texture_rough.wrapS = three.RepeatWrapping;
-metal_texture_rough.wrapT = three.RepeatWrapping;
-metal_texture_rough.repeat.set(3, 3);
+makeRepeat(metal_texture_rough, 3, 3);
 
 const fabric_texture_ao = texture_loader.load("/textures/fabric/1k/fabric_pattern_07_ao_1k.jpg");
-fabric_texture_ao.wrapS = three.RepeatWrapping;
-fabric_texture_ao.wrapT = three.RepeatWrapping;
-fabric_texture_ao.repeat.set(3, 3);
+makeRepeat(fabric_texture_ao, 3, 3);
 const fabric_texture_col = texture_loader.load("/textures/fabric/1k/fabric_pattern_07_col_1_1k.jpg");
-fabric_texture_col.wrapS = three.RepeatWrapping;
-fabric_texture_col.wrapT = three.RepeatWrapping;
-fabric_texture_col.repeat.set(3, 3);
+makeRepeat(fabric_texture_col, 3, 3);
 const fabric_texture_nor_gl = texture_loader.load("/textures/fabric/1k/fabric_pattern_07_nor_gl_1k.jpg");
-fabric_texture_nor_gl.wrapS = three.RepeatWrapping;
-fabric_texture_nor_gl.wrapT = three.RepeatWrapping;
-fabric_texture_nor_gl.repeat.set(3, 3);
+makeRepeat(fabric_texture_nor_gl, 3, 3);
 const fabric_texture_rough = texture_loader.load("/textures/fabric/1k/fabric_pattern_07_rough_1k.jpg");
-fabric_texture_rough.wrapS = three.RepeatWrapping;
-fabric_texture_rough.wrapT = three.RepeatWrapping;
-fabric_texture_rough.repeat.set(3, 3);
+makeRepeat(fabric_texture_rough, 3, 3);
+
+function makeRepeat(texture, s, t) {
+
+    texture.wrapS = three.RepeatWrapping;
+    texture.wrapT = three.RepeatWrapping;
+    texture.repeat.set(s, t);
+
+}
 
 
 /**
  * Object
  */
 // Material
-const marble_material = new three.MeshStandardMaterial();
-marble_material.map = rock_texture_diff;
-marble_material.aoMap = rock_texture_ao;
-marble_material.displacementMap = rock_texture_disp;
-marble_material.normalMap = rock_texture_nor_gl;
-marble_material.roughnessMap = rock_texture_rough;
+const rock_material = new three.MeshStandardMaterial();
+rock_material.map = rock_texture_diff;
+rock_material.aoMap = rock_texture_ao;
+rock_material.displacementMap = rock_texture_disp;
+rock_material.displacementScale = 0.1;
+rock_material.normalMap = rock_texture_nor_gl;
+rock_material.roughnessMap = rock_texture_rough;
 
 const wood_material = new three.MeshStandardMaterial();
 wood_material.map = wood_texture_diff;
 wood_material.aoMap = wood_texture_ao;
 wood_material.normalMap = wood_texture_nor_gl;
 wood_material.roughnessMap = wood_texture_rough;
+wood_material.displacementMap = wood_texture_disp;
+wood_material.displacementScale = 0.01;
+wood_material.emissiveMap = wood_texture_arm;
+wood_material.emissive = new three.Color(0xffffff);
+wood_material.emissiveIntensity = 0.1;
 
 const metal_material = new three.MeshStandardMaterial();
 metal_material.map = metal_texture_diff;
@@ -178,10 +178,9 @@ sphere_geometry.setAttribute("uv2", new three.BufferAttribute(sphere_geometry.at
 // Sphere
 const marble_sphere = new three.Mesh(
     sphere_geometry,
-    marble_material,
+    rock_material,
 );
 marble_sphere.position.set(0.65, 0.65, 0);
-marble_sphere.scale.set(0.5, 0.5, 0.5);
 scene.add(marble_sphere);
 
 const wood_sphere = new three.Mesh(
