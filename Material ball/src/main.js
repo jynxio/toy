@@ -17,8 +17,8 @@ const canvas = document.querySelector("canvas");
 const scene = new three.Scene();
 
 // Camera
-const camera = new three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.z = 2;
+const camera = new three.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.z = 4;
 scene.add(camera);
 
 // Renderer
