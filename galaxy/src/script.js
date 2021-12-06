@@ -151,7 +151,8 @@ controls.enableDamping = true;
  * Renderer
  */
 const renderer = new three.WebGLRenderer({
-    canvas: canvas
+    canvas: canvas,
+    antialias: true
 });
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
