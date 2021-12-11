@@ -3,3 +3,22 @@
     top: 0;
     left: 0;
 }
+
+body {
+    background-color: #1a1a1a;
+}
+
+section {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+section > h1 {
+    position: absolute;
+    top: 50%;
+    left: 15%;
+    color: #ffffff;
+    font-size: 10vmin;
+    transform: translate(0, -50%);
+}
