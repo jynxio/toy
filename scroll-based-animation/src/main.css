@@ -15,10 +15,9 @@ section {
 }
 
 section > h1 {
+    display: none;
     position: absolute;
-    top: 50%;
-    left: 15%;
     color: #ffffff;
     font-size: 10vmin;
-    transform: translate(0, -50%);
+    font-weight: bold;
 }

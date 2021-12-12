@@ -19,25 +19,15 @@ const scene = new three.Scene();
 const camera_group = new three.Group();
 scene.add(camera_group);
 
-const camera = new three.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.z = 6;
+let aspect_ratio = window.innerWidth / window.innerHeight;
+const camera = new three.OrthographicCamera(- 2.5 * aspect_ratio, 2.5 * aspect_ratio, 2.5, - 2.5, 0.1, 100);
+camera.position.z = 5;
 camera_group.add(camera);
 
 // Renderer
 const renderer = new three.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-// Resize
-window.addEventListener("resize", _ => {
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-});
 
 /**
  * Object
@@ -49,7 +39,7 @@ texture.minFilter = three.NearestFilter;
 texture.magFilter = three.NearestFilter;
 
 // Material
-const material = new three.MeshToonMaterial({ gradientMap: texture });
+const material = new three.MeshToonMaterial({ gradientMap: texture, depthTest: false });
 
 // ...
 const meshs = [];
@@ -57,10 +47,11 @@ const spacing = 5;
 
 // Torus
 const torus = new three.Mesh(
-    new three.TorusGeometry(1, 0.4, 64, 128),
+    new three.TorusGeometry(0.7, 0.26, 64, 128),
     material
 );
-torus.position.x = 2;
+torus.position.x = camera.right * 0.8;
+torus.renderOrder = 1;
 
 scene.add(torus);
 
@@ -68,11 +59,12 @@ meshs.push(torus);
 
 // Cone
 const cone = new three.Mesh(
-    new three.ConeGeometry(1, 2, 128),
+    new three.ConeGeometry(0.7, 1.4, 128),
     material
 );
-cone.position.x = 2;
+cone.position.x = camera.right * 0.8;
 cone.position.y = - spacing;
+cone.renderOrder = 1;
 
 scene.add(cone);
 
@@ -80,11 +72,12 @@ meshs.push(cone);
 
 // Torusknot
 const torusknot = new three.Mesh(
-    new three.TorusKnotGeometry(0.8, 0.35, 256, 64),
+    new three.TorusKnotGeometry(0.56, 0.25, 256, 64),
     material
 );
-torusknot.position.x = 2;
+torusknot.position.x = camera.right * 0.8;
 torusknot.position.y = - spacing * 2;
+torusknot.renderOrder = 1;
 
 scene.add(torusknot);
 
@@ -99,8 +92,8 @@ const positions = new Float32Array(count * 3);
 
 for (let i = 0; i < count; i++) {
 
-    positions[i * 3 + 0] = (Math.random() - 0.5) * 10;
-    positions[i * 3 + 1] = - Math.random() * meshs.length * spacing + spacing * 0.5;
+    positions[i * 3 + 0] = (Math.random() - 0.5) * (camera.right - camera.left + 2);
+    positions[i * 3 + 1] = - Math.random() * (meshs.length * spacing + 2) + spacing * 0.5 + 1;
     positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
 
 }
@@ -161,6 +154,113 @@ window.addEventListener("mousemove", event => {
     cursor.y = 1 - event.clientY / (window.innerHeight - 1) - 0.5; // [-0.5, 0.5]
 
 });
+
+/**
+ * Resize
+ */
+const h1s = document.querySelectorAll("h1");
+
+locateH1();
+locateMesh();
+
+window.addEventListener("resize", _ => {
+
+    aspect_ratio = window.innerWidth / window.innerHeight;
+
+    // Relocate UI
+    relocateH1();
+
+    // Relocate mesh
+    relocateMesh();
+
+    // Relocate particle
+    relocateParticle();
+
+    camera.left = - 2.5 * aspect_ratio;
+    camera.right = 2.5 * aspect_ratio;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    renderer.render(scene, camera);
+
+});
+
+function locateH1() {
+
+    h1s.forEach(h1 => h1.style.display = "block");
+
+    relocateH1();
+
+}
+
+function relocateH1() {
+
+    if (aspect_ratio <= 1) {
+
+        h1s.forEach(h1 => {
+
+            h1.style.top = "10%";
+            h1.style.left = "50%";
+            h1.style.transform = "translate(-50%, 0)";
+
+        });
+
+        return;
+
+    }
+
+    h1s.forEach(h1 => {
+
+        h1.style.top = "50%";
+        h1.style.left = "15%";
+        h1.style.transform = "translate(0, -50%)";
+
+    });
+
+    return;
+
+}
+
+function locateMesh() {
+
+    relocateMesh();
+
+}
+
+function relocateMesh() {
+
+    if (aspect_ratio <= 1) {
+
+        meshs.forEach(mesh => mesh.position.x = 0);
+
+        return;
+
+    }
+
+    meshs.forEach(mesh => mesh.position.x = aspect_ratio * camera.top * 0.5);
+
+    return;
+
+}
+
+function relocateParticle() {
+
+    const attribute = particle.geometry.getAttribute("position");
+    const array = attribute.array;
+
+    array.forEach((item, index) => {
+
+        if (index % 3 !== 0) return;
+
+        array[index] = (Math.random() - 0.5) * (5 * aspect_ratio + 2);
+
+    });
+
+    attribute.needsUpdate = true;
+
+}
 
 /**
  * Render
