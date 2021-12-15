@@ -158,4 +158,5 @@ renderer.setClearColor( 0xbad3fc );
  *    双指旋转旋转地图，该功能仅在3D状态下激活。
  * 模型增加条纹纹理。
  * 当缩放等级达到特定zoom级别时，方可看到3D建筑。
+ * 使用Overpass API来获取地理面数据
  */
