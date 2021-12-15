@@ -31,7 +31,7 @@ let points;
 
 const parameters = {
     count: 100000,
-    size: 0.01,
+    size: 1,
     radius: 5,
     branches: 3,
     spin: 5,
@@ -98,7 +98,7 @@ function generateGalaxy() {
      */
     material = new three.PointsMaterial({
         size: parameters.size,
-        sizeAttenuation: true,
+        sizeAttenuation: false,
         depthWrite: false,
         blending: three.AdditiveBlending,
         vertexColors: true,
