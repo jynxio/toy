@@ -5,6 +5,7 @@
     },
     "devDependencies": {
         "css-loader": "^6.5.1",
+        "gltf-pipeline": "^3.0.4",
         "html-webpack-plugin": "^5.5.0",
         "style-loader": "^3.3.1",
         "webpack": "^5.65.0",
@@ -13,8 +14,8 @@
         "webpack-merge": "^5.8.0"
     },
     "dependencies": {
-        "three": "^0.136.0",
         "lil-gui": "^0.16.0",
-        "stats.js": "^0.17.0"
+        "stats.js": "^0.17.0",
+        "three": "^0.136.0"
     }
 }
