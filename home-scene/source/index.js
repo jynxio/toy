@@ -6,8 +6,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+
 import * as dat from "lil-gui";
-import { FileLoader } from "three";
 
 
 /**
@@ -28,7 +29,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;          // 令光源使用真实的光照单位。
 renderer.outputEncoding = three.sRGBEncoding;     // 使用更加真实的输出编码。
 renderer.toneMapping = three.ReinhardToneMapping; // 修改色调映射。
-renderer.toneMappingExposure = 3;
+renderer.toneMappingExposure = 3;                 // 修改曝光度。
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = three.PCFSoftShadowMap;
 renderer.setAnimationLoop(render);
@@ -46,11 +47,23 @@ document.body.append(renderer.domElement);
 
 // Camera
 const camera = new three.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 100);
+camera.position.set(0, 1, 0);
 scene.add(camera);
 
 // Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+
+// Resize
+window.addEventListener("resize", _ => {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+});
 
 
 /**
@@ -66,91 +79,153 @@ function render() {
 
 
 /**
- * House
+ * Light
  */
-const geometry = new three.PlaneGeometry(10, 10);
-const planes = [];
+const light = new three.DirectionalLight(0xffffff, 3);
+light.position.set();
 
-for (let i = 0; i < 6; i++) {
 
-    planes[i] = new three.Mesh(geometry, new three.MeshBasicMaterial());
+/**
+ * Furniture
+ */
+// House
+const planes = createPlanes();
+planes.forEach(item => scene.add(item));
 
-    scene.add(planes[i]);
+function createPlanes() {
+
+    const geometry = new three.PlaneGeometry(10, 10);
+    const planes = [];
+
+    for (let i = 0; i < 6; i++) planes[i] = new three.Mesh(geometry, new three.MeshBasicMaterial());
+
+    planes[0].position.set(5, 0, 0);
+    planes[0].rotateY(- Math.PI / 2);
+
+    planes[1].position.set(- 5, 0, 0);
+    planes[1].rotateY(Math.PI / 2);
+
+    planes[2].position.set(0, 5, 0);
+    planes[2].rotateX(Math.PI / 2);
+
+    planes[3].position.set(0, - 5, 0);
+    planes[3].rotateX(- Math.PI / 2);
+
+    planes[4].position.set(0, 0, - 5);
+
+    planes[5].position.set(0, 0, 5);
+    planes[5].rotateY(Math.PI);
+
+    return planes;
 
 }
 
-planes[0].position.set(5, 0, 0);
-planes[0].rotateY(- Math.PI / 2);
+// Model and texture
+loadSource().then(source => {
 
-planes[1].position.set(- 5, 0, 0);
-planes[1].rotateY(Math.PI / 2);
+    const textures = source.texture;
+    const models = source.model;
 
-planes[2].position.set(0, 5, 0);
-planes[2].rotateX(Math.PI / 2);
+    textures.forEach((item, index) => {
 
-planes[3].position.set(0, - 5, 0);
-planes[3].rotateX(- Math.PI / 2);
+        planes[index].material.map = item;
+        planes[index].material.needsUpdate = true;
 
-planes[4].position.set(0, 0, - 5);
+    });
 
-planes[5].position.set(0, 0, 5);
-planes[5].rotateY(Math.PI);
+    models.forEach((item, index) => {
 
-loadHouseMap();
+        if (index == 0) scene.add(item);
 
-function loadHouseMap() {
+    });
 
-    const env_map_url = [
-        "./static/texture/env-indoor-1024/px.png",
-        "./static/texture/env-indoor-1024/nx.png",
-        "./static/texture/env-indoor-1024/py.png",
-        "./static/texture/env-indoor-1024/ny.png",
-        "./static/texture/env-indoor-1024/pz.png",
-        "./static/texture/env-indoor-1024/nz.png",
+});
+
+
+/**
+ * Loading manager
+ */
+function loadSource() {
+
+    const texture_url = [
+        "./static/texture/env-indoor-2k-2048/px.png",
+        "./static/texture/env-indoor-2k-2048/nx.png",
+        "./static/texture/env-indoor-2k-2048/py.png",
+        "./static/texture/env-indoor-2k-2048/ny.png",
+        "./static/texture/env-indoor-2k-2048/pz.png",
+        "./static/texture/env-indoor-2k-2048/nz.png",
     ];
-    const env_map = [];
+    const model_url = [
+        "./static/model/lamp-1/gltf-draco/scene.gltf",
+        "./static/model/lamp-2/gltf-draco/scene.gltf",
+        "./static/model/ikea-desk-1/gltf-draco/scene.gltf",
+        "./static/model/ikea-desk-2/gltf-draco/scene.gltf",
+    ];
+    const result = {
+        texture: [],
+        model: [],
+    };
 
     const manager = new three.LoadingManager();
+    const promise = new Promise((resolve, reject) => {
 
-    manager.onStart = _ => {
+        manager.onStart = onStart;
+        manager.onProgress = onProgress;
+        manager.onError = onError;
+        manager.onLoad = onLoad;
 
-        console.log("开始加载资源。");
+        // Texture
+        const texture_loader = new three.TextureLoader(manager);
+        texture_url.forEach((item, index) => texture_loader.load(item, texture => {
 
-    };
-    manager.onLoad = _ => {
+            texture.encoding = three.sRGBEncoding;
+            result.texture[index] = texture;
 
-        console.log("资源加载完成。");
+        }));
 
-        for (let i = 0; i < 6; i++) {
+        // Model
+        const draco_loader = new DRACOLoader();
+        draco_loader.setDecoderPath("./node_modules/three/examples/js/libs/draco/");
 
-            planes[i].material.map = env_map[i];
-            planes[i].material.needsUpdate = true;
+        const gltf_loader = new GLTFLoader(manager);
+        gltf_loader.setDRACOLoader(draco_loader);
+        model_url.forEach((item, index) => gltf_loader.load(item, gltf => {
+
+            // result.model[index] = gltf.scene;
+
+        }));
+
+        // Event
+        function onStart() {
+
+            console.log("开始加载资源。");
 
         }
 
-    };
-    manager.onProgress = (url, num_of_loaded, num_of_total) => {
+        function onProgress(url, num_of_loaded, num_of_total) {
 
-        console.log("加载进度：" + num_of_loaded + "/" + num_of_total);
+            console.log("加载进度：" + num_of_loaded + "/" + num_of_total);
 
-    };
-    manager.onError = url => {
+        }
 
-        console.log("加载出错：" + url);
+        function onError(url) {
 
-    };
+            console.log("加载出错：" + url);
 
-    const loader = new three.TextureLoader(manager);
+            reject(url);
 
-    env_map_url.forEach((item, index) => {
+        }
 
-        loader.load(item, texture => {
+        function onLoad() {
 
-            texture.encoding = three.sRGBEncoding;
-            env_map[index] = texture;
+            console.log("资源加载完成。");
 
-        });
+            resolve(result);
+
+        }
 
     });
+
+    return promise;
 
 }
