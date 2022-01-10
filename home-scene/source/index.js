@@ -1,5 +1,7 @@
 import "/style/reset.css";
 
+import "/style/index.css";
+
 import * as three from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -28,8 +30,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;          // 令光源使用真实的光照单位。
 renderer.outputEncoding = three.sRGBEncoding;     // 使用更加真实的输出编码。
-renderer.toneMapping = three.ReinhardToneMapping; // 修改色调映射。
-renderer.toneMappingExposure = 3;                 // 修改曝光度。
+renderer.toneMapping = three.NoToneMapping;       // 修改色调映射。
+renderer.toneMappingExposure = 1;                 // 修改曝光度。
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = three.PCFSoftShadowMap;
 renderer.setAnimationLoop(render);
@@ -47,12 +49,14 @@ document.body.append(renderer.domElement);
 
 // Camera
 const camera = new three.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 100);
-camera.position.set(0, 1, 0);
 scene.add(camera);
 
 // Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+// controls.enablePan = false;
+// controls.enableZoom = false;
+controls.target = new three.Vector3(0, 0, -0.01);
 
 // Resize
 window.addEventListener("resize", _ => {
@@ -135,7 +139,9 @@ loadSource().then(source => {
 
     models.forEach((item, index) => {
 
-        if (index == 0) scene.add(item);
+        item.scale.set(0.002, 0.002, 0.002);
+        item.position.set(0, 0, - 1);
+        scene.add(item);
 
     });
 
@@ -148,18 +154,15 @@ loadSource().then(source => {
 function loadSource() {
 
     const texture_url = [
-        "./static/texture/env-indoor-2k-2048/px.png",
-        "./static/texture/env-indoor-2k-2048/nx.png",
-        "./static/texture/env-indoor-2k-2048/py.png",
-        "./static/texture/env-indoor-2k-2048/ny.png",
-        "./static/texture/env-indoor-2k-2048/pz.png",
-        "./static/texture/env-indoor-2k-2048/nz.png",
+        "./static/texture/env-shanghai-4k-2048/px.png",
+        "./static/texture/env-shanghai-4k-2048/nx.png",
+        "./static/texture/env-shanghai-4k-2048/py.png",
+        "./static/texture/env-shanghai-4k-2048/ny.png",
+        "./static/texture/env-shanghai-4k-2048/pz.png",
+        "./static/texture/env-shanghai-4k-2048/nz.png",
     ];
     const model_url = [
-        "./static/model/lamp-1/gltf-draco/scene.gltf",
-        "./static/model/lamp-2/gltf-draco/scene.gltf",
-        "./static/model/ikea-desk-1/gltf-draco/scene.gltf",
-        "./static/model/ikea-desk-2/gltf-draco/scene.gltf",
+        "./static/model/michelle/draco/scene.glb",
     ];
     const result = {
         texture: [],
@@ -191,7 +194,7 @@ function loadSource() {
         gltf_loader.setDRACOLoader(draco_loader);
         model_url.forEach((item, index) => gltf_loader.load(item, gltf => {
 
-            // result.model[index] = gltf.scene;
+            result.model[index] = gltf.scene;
 
         }));
 
