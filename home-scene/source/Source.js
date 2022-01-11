@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 /* Texture */
+let cube_texture;
 const textures = [];
 const textures_url = [
     "./static/texture/env-shanghai-4k-2048/px.png",
@@ -43,6 +44,11 @@ function load() {
             textures[index] = texture;
 
         }));
+
+        /* Cube texture */
+        const cube_texture_loader = new three.CubeTextureLoader(manager);
+        cube_texture = cube_texture_loader.load(textures_url);
+        cube_texture.encoding = three.sRGBEncoding;
 
         /* Model */
         const draco_loader = new DRACOLoader();
@@ -103,6 +109,14 @@ function getTextures() {
 
 }
 
+function getCubeTexture() {
+
+    if (!cube_texture) console.warn("请先调用load方法。");
+
+    return cube_texture;
+
+}
+
 /**
  * 获取所有模型。
  * @returns {Array} - 模型数组。
@@ -115,4 +129,4 @@ function getModels() {
 
 }
 
-export { load, getTextures, getModels };
+export { load, getTextures, getCubeTexture, getModels };

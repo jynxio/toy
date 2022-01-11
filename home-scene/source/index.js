@@ -114,9 +114,13 @@ Source.load().then(response => {
 
     }
 
-    /* Environment */
+    /* Textures */
     const textures = Source.getTextures();
 
+    /* Cube texture */
+    const cube_texture = Source.getCubeTexture();
+
+    /* Environment */
     Environment.addTexture(textures);
 
     /* Model */
@@ -126,16 +130,17 @@ Source.load().then(response => {
     model.rotateY(Math.PI);
     model.scale.set(0.12, 0.12, 0.12);
     model.position.set(0, - 1.99, 7.76);
-    scene.add(model);
-
     model.traverse(item => {
 
         if (item instanceof three.Mesh === false) return;
         if (item.material instanceof three.MeshStandardMaterial === false) return;
 
-        console.log(item);
+        item.material.envMap = cube_texture;
+        item.material.envMapIntensity = 3; // TODO 调试出一个合适的envmap强度
 
     });
+
+    scene.add(model);
 
     light.target = model;
 
