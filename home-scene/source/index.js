@@ -48,8 +48,7 @@ gui.add(renderer, "toneMapping", {
 document.body.append(renderer.domElement);
 
 /* Camera */
-const camera = new three.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 100);
-// camera.position.set(0, -5, 0);
+const camera = new three.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
 scene.add(camera);
 
 /* Controls */
@@ -114,13 +113,12 @@ Source.load().then(response => {
     const models = Source.getModels();
     const model = models[0];
 
-    model.scale.set(0.1, 0.1, 0.1);
-    model.rotateY(Math.PI);
-    model.position.set(0, - 1.7, 4);
+    model.scale.set(0.12, 0.12, 0.12);
+    model.position.set(0, - 1.99, - 7.76);
     scene.add(model);
 
-    gui.add(model.position, "x").min(-5).max(5).step(0.01);
-    gui.add(model.position, "y").min(-5).max(5).step(0.01);
-    gui.add(model.position, "z").min(-5).max(5).step(0.01);
+    gui.add(model.position, "x").min(- 10).max(10).step(0.01);
+    gui.add(model.position, "y").min(- 10).max(10).step(0.01);
+    gui.add(model.position, "z").min(- 10).max(10).step(0.01);
 
 });

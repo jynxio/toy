@@ -8,42 +8,42 @@ const environment = []; // px nx py ny pz nz
  */
 function init() {
 
-    const geometry = new three.PlaneGeometry(10, 10);
+    const geometry = new three.PlaneGeometry(20, 20);
 
 
     /* Px */
     const env_px = new three.Mesh(geometry, new three.MeshBasicMaterial());
 
-    env_px.position.set(5, 0, 0);
+    env_px.position.set(10, 0, 0);
     env_px.rotateY(- Math.PI / 2);
 
     /* Nx */
     const env_nx = new three.Mesh(geometry, new three.MeshBasicMaterial());
 
-    env_nx.position.set(- 5, 0, 0);
+    env_nx.position.set(- 10, 0, 0);
     env_nx.rotateY(Math.PI / 2);
 
     /* Py */
     const env_py = new three.Mesh(geometry, new three.MeshBasicMaterial());
 
-    env_py.position.set(0, 5, 0);
+    env_py.position.set(0, 10, 0);
     env_py.rotateX(Math.PI / 2);
 
     /* Ny */
     const env_ny = new three.Mesh(geometry, new three.MeshBasicMaterial());
 
-    env_ny.position.set(0, - 5, 0);
+    env_ny.position.set(0, - 10, 0);
     env_ny.rotateX(- Math.PI / 2);
 
     /* Pz */
     const env_pz = new three.Mesh(geometry, new three.MeshBasicMaterial());
 
-    env_pz.position.set(0, 0, - 5);
+    env_pz.position.set(0, 0, - 10);
 
     /* Nz */
     const env_nz = new three.Mesh(geometry, new three.MeshBasicMaterial());
 
-    env_nz.position.set(0, 0, 5);
+    env_nz.position.set(0, 0, 10);
     env_nz.rotateY(Math.PI);
 
     /* Push */
