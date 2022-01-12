@@ -59,17 +59,24 @@ controls.enableDamping = true;
 controls.target = new three.Vector3(0, 0, 0.01);
 
 /* Light */
-const light = new three.DirectionalLight(0xffffff, 6);
-
+const light = new three.DirectionalLight(0xff00ff, 4);
 light.position.set(- 10, 10, 10);
+light.castShadow = true;
+light.shadow.camera.far = 15;
+light.shadow.mapSize.set(1024, 1024);
 scene.add(light);
 
-const helper = new three.DirectionalLightHelper(light);
+// const helper = new three.DirectionalLightHelper(light);
+// scene.add(helper);
 
+const helper = new three.CameraHelper(light.shadow.camera);
 scene.add(helper);
 
-// const helper = new three.CameraHelper(light.shadow.camera);
-// scene.add(helper);
+// TODO
+gui.add(light.shadow.camera, "top").min(1).max(10).step(0.01).onChange(_ => helper.update());
+gui.add(light.shadow.camera, "bottom").min(- 10).max(- 1).step(- 0.01).onChange(_ => helper.update());
+gui.add(light.shadow.camera, "left").min(- 10).max(- 1).step(- 0.01).onChange(_ => helper.update());
+gui.add(light.shadow.camera, "right").min(1).max(10).step(0.01).onChange(_ => helper.update());
 
 /* Resize */
 window.addEventListener("resize", _ => {
@@ -130,22 +137,37 @@ Source.load().then(response => {
     model.rotateY(Math.PI);
     model.scale.set(0.12, 0.12, 0.12);
     model.position.set(0, - 1.99, 7.76);
-    model.traverse(item => {
-
-        if (item instanceof three.Mesh === false) return;
-        if (item.material instanceof three.MeshStandardMaterial === false) return;
-
-        item.material.envMap = cube_texture;
-        item.material.envMapIntensity = 3; // TODO 调试出一个合适的envmap强度
-
-    });
 
     scene.add(model);
 
     light.target = model;
 
-    gui.add(model.position, "x").min(- 10).max(10).step(0.01);
-    gui.add(model.position, "y").min(- 10).max(10).step(0.01);
-    gui.add(model.position, "z").min(- 10).max(10).step(0.01);
+    gui.add(model.position, "x").min(- 10).max(10).step(0.01).name("model-x");
+    gui.add(model.position, "y").min(- 10).max(10).step(0.01).name("model-y");
+    gui.add(model.position, "z").min(- 10).max(10).step(0.01).name("model-z");
+
+    const debug_opstions = {
+        envMapIntensity: 8,
+    };
+
+    updateModelEnvMap();
+
+    function updateModelEnvMap() {
+
+        model.traverse(item => {
+
+            if (item instanceof three.Mesh === false) return;
+            if (item.material instanceof three.MeshStandardMaterial === false) return;
+
+            item.material.envMap = cube_texture;
+            item.material.envMapIntensity = debug_opstions.envMapIntensity;
+            item.catShadow = true;
+            item.receiveShadow = true;
+
+        });
+
+    }
+
+    gui.add(debug_opstions, "envMapIntensity").min(0).max(10).step(0.01).name("env-map-intensity").onChange(updateModelEnvMap);
 
 });
