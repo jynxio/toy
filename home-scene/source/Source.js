@@ -19,7 +19,7 @@ const textures_url = [
 /* Model */
 const models = [];
 const models_url = [
-    "./static/model/michelle/hello/glb-draco/scene.glb",
+    "./static/model/michelle/standing/glb-draco/scene.glb",
 ];
 
 /**

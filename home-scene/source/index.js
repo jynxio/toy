@@ -70,7 +70,7 @@ scene.add(light);
 // scene.add(helper);
 
 const helper = new three.CameraHelper(light.shadow.camera);
-scene.add(helper);
+// scene.add(helper);
 
 // TODO
 gui.add(light.shadow.camera, "top").min(1).max(10).step(0.01).onChange(_ => helper.update());
@@ -135,7 +135,7 @@ Source.load().then(response => {
     const model = models[0];
 
     model.rotateY(Math.PI);
-    model.scale.set(0.12, 0.12, 0.12);
+    model.scale.set(0.015, 0.015, 0.015);
     model.position.set(0, - 1.99, 7.76);
 
     scene.add(model);
