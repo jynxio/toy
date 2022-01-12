@@ -30,11 +30,13 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;          // 令光源使用真实的光照单位。
 renderer.outputEncoding = three.sRGBEncoding;     // 使用更加真实的输出编码。
-renderer.toneMapping = three.NoToneMapping;       // 修改色调映射。
+renderer.toneMapping = three.ACESFilmicToneMapping;       // 修改色调映射。
 renderer.toneMappingExposure = 1;                 // 修改曝光度。
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = three.PCFSoftShadowMap;
 renderer.setAnimationLoop(render);
+
+document.body.append(renderer.domElement);
 
 gui.add(renderer, "toneMappingExposure").min(0).max(10).step(0.001);
 gui.add(renderer, "toneMapping", {
@@ -44,8 +46,6 @@ gui.add(renderer, "toneMapping", {
     Cineon: three.CineonToneMapping,
     ACESFilmic: three.ACESFilmicToneMapping,
 });
-
-document.body.append(renderer.domElement);
 
 /* Camera */
 const camera = new three.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 100);
@@ -62,21 +62,34 @@ controls.target = new three.Vector3(0, 0, 0.01);
 const light = new three.DirectionalLight(0xff00ff, 4);
 light.position.set(- 10, 10, 10);
 light.castShadow = true;
-light.shadow.camera.far = 15;
 light.shadow.mapSize.set(1024, 1024);
+light.shadow.camera.far = 15;
+light.shadow.camera.top = 5;
+light.shadow.camera.right = 5;
+light.shadow.camera.bottom = -5;
+light.shadow.camera.left = -5;
+light.shadow.camera.far = 20;
+// light.shadow.camera.near = 5;
 scene.add(light);
 
-// const helper = new three.DirectionalLightHelper(light);
+// TODO 调整阴影
+gui.add(light.position, "x").min(- 10).max(10).name("light-x");
+gui.add(light.position, "y").min(- 10).max(10).name("light-y");
+gui.add(light.position, "z").min(- 10).max(10).name("light-z");
+
+const helper = new three.DirectionalLightHelper(light);
+scene.add(helper);
+
+// const helper = new three.CameraHelper(light.shadow.camera);
 // scene.add(helper);
 
-const helper = new three.CameraHelper(light.shadow.camera);
-// scene.add(helper);
-
-// TODO
-gui.add(light.shadow.camera, "top").min(1).max(10).step(0.01).onChange(_ => helper.update());
-gui.add(light.shadow.camera, "bottom").min(- 10).max(- 1).step(- 0.01).onChange(_ => helper.update());
-gui.add(light.shadow.camera, "left").min(- 10).max(- 1).step(- 0.01).onChange(_ => helper.update());
-gui.add(light.shadow.camera, "right").min(1).max(10).step(0.01).onChange(_ => helper.update());
+gui.add(light, "castShadow").name("shadow");
+// gui.add(light.shadow.camera, "top").min(0).max(10).name("shadow-top").step(0.01);
+// gui.add(light.shadow.camera, "bottom").min(- 10).max(0).name("shadow-bottom").step(- 0.01);
+// gui.add(light.shadow.camera, "left").min(- 10).max(0).name("shadow-left").step(- 0.01);
+// gui.add(light.shadow.camera, "right").min(0).max(10).name("shadow-right").step(0.01);
+// gui.add(light.shadow.camera, "far").min(0).max(20).name("shadow-far").step(0.01);
+// gui.add(light.shadow.camera, "near").min(0).max(20).name("shadow-near").step(0.01);
 
 /* Resize */
 window.addEventListener("resize", _ => {
@@ -94,7 +107,8 @@ window.addEventListener("resize", _ => {
 /* ----------------------------------------------------------------------------------------------------------------------------------------------- */
 function render() {
 
-    helper.update();
+    // light.shadow.camera.updateProjectionMatrix();
+    helper.update()
 
     controls.update();
 
@@ -142,9 +156,9 @@ Source.load().then(response => {
 
     light.target = model;
 
-    gui.add(model.position, "x").min(- 10).max(10).step(0.01).name("model-x");
-    gui.add(model.position, "y").min(- 10).max(10).step(0.01).name("model-y");
-    gui.add(model.position, "z").min(- 10).max(10).step(0.01).name("model-z");
+    // gui.add(model.position, "x").min(- 10).max(10).step(0.01).name("model-x");
+    // gui.add(model.position, "y").min(- 10).max(10).step(0.01).name("model-y");
+    // gui.add(model.position, "z").min(- 10).max(10).step(0.01).name("model-z");
 
     const debug_opstions = {
         envMapIntensity: 8,
@@ -161,7 +175,7 @@ Source.load().then(response => {
 
             item.material.envMap = cube_texture;
             item.material.envMapIntensity = debug_opstions.envMapIntensity;
-            item.catShadow = true;
+            item.castShadow = true;
             item.receiveShadow = true;
 
         });
@@ -169,5 +183,14 @@ Source.load().then(response => {
     }
 
     gui.add(debug_opstions, "envMapIntensity").min(0).max(10).step(0.01).name("env-map-intensity").onChange(updateModelEnvMap);
+
+    /* Ground */
+    const ground = new three.Mesh(
+        new three.PlaneGeometry(8, 8).rotateX(- Math.PI / 2),
+        new three.ShadowMaterial({ opacity: 0.5 }),
+    );
+    ground.position.copy(model.position);
+    ground.receiveShadow = true;
+    scene.add(ground);
 
 });
