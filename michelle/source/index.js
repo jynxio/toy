@@ -6,6 +6,10 @@ import * as three from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+
 /* ------------------------------------------------------------------------------------------------------ */
 /* Renderer */
 const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
@@ -76,6 +80,81 @@ light.shadow.camera.far = 20;
 light.shadow.camera.near = 1;
 
 scene.add(light);
+
+/* Plane */
+const plane_geometry = new three.PlaneGeometry(20, 20);
+
+const planes = []; // px nx py ny pz nz
+
+for (let i = 0; i < 6; i++) planes.push(new three.Mesh(plane_geometry, new three.MeshBasicMaterial()));
+
+planes[0].position.set(10, 0, 0);
+planes[0].rotateY(- Math.PI / 2);
+
+planes[1].position.set(- 10, 0, 0);
+planes[1].rotateY(Math.PI / 2);
+
+planes[2].position.set(0, 10, 0);
+planes[2].rotateX(Math.PI / 2);
+
+planes[3].position.set(0, - 10, 0);
+planes[3].rotateX(- Math.PI / 2);
+
+planes[4].position.set(0, 0, - 10);
+
+planes[5].position.set(0, 0, 10);
+planes[5].rotateY(Math.PI);
+
+scene.add(...planes);
+
+/* Texture & Model */
+
+function load() {
+
+    const result = {
+        model: undefined,
+        env_texture: undefined,
+        map_textures: [],
+    };
+
+    const manager = new three.LoadingManager();
+
+    const promise = new Promise((resolve, reject) => {
+
+        manager.onLoad = onLoad;
+        manager.onError = onError;
+        manager.onStart = onStart;
+        manager.onProgress = onProgress;
+
+        function onLoad() {
+
+            console.log("开始加载资源。");
+
+            resolve(result);
+
+        }
+
+        function onError(info) {
+
+            console.log("资源加载出错。");
+
+            reject(info);
+
+        }
+
+        function onStart() {
+
+            console.log("开始加载资源。");
+
+        }
+
+
+
+
+
+    });
+
+}
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* Render */
