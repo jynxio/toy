@@ -60,7 +60,7 @@ controls.target = new three.Vector3(0, 0, 0.01);
 
 /* Light */
 const light = new three.DirectionalLight(0xff00ff, 4);
-light.position.set(- 10, 10, 10);
+light.position.set(- 1.56, - 0.58, 10);
 light.castShadow = true;
 light.shadow.mapSize.set(1024, 1024);
 light.shadow.camera.far = 15;
@@ -68,20 +68,19 @@ light.shadow.camera.top = 5;
 light.shadow.camera.right = 5;
 light.shadow.camera.bottom = -5;
 light.shadow.camera.left = -5;
-light.shadow.camera.far = 20;
+light.shadow.camera.far = 10;
 // light.shadow.camera.near = 5;
 scene.add(light);
 
-// TODO 调整阴影
 gui.add(light.position, "x").min(- 10).max(10).name("light-x");
 gui.add(light.position, "y").min(- 10).max(10).name("light-y");
 gui.add(light.position, "z").min(- 10).max(10).name("light-z");
 
 const helper = new three.DirectionalLightHelper(light);
-scene.add(helper);
-
-// const helper = new three.CameraHelper(light.shadow.camera);
 // scene.add(helper);
+
+const helper_2 = new three.CameraHelper(light.shadow.camera);
+// scene.add(helper_2);
 
 gui.add(light, "castShadow").name("shadow");
 // gui.add(light.shadow.camera, "top").min(0).max(10).name("shadow-top").step(0.01);
@@ -107,8 +106,9 @@ window.addEventListener("resize", _ => {
 /* ----------------------------------------------------------------------------------------------------------------------------------------------- */
 function render() {
 
-    // light.shadow.camera.updateProjectionMatrix();
-    helper.update()
+    light.shadow.camera.updateProjectionMatrix();
+    helper.update();
+    helper_2.update();
 
     controls.update();
 
