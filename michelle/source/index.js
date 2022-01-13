@@ -109,6 +109,8 @@ scene.add(...planes);
 
 /* Texture & Model */
 
+load();
+
 function load() {
 
     const result = {
@@ -148,9 +150,43 @@ function load() {
 
         }
 
+        function onProgress(_, num_of_loaded, num_of_total) {
 
+            console.log(`资源加载进度：${num_of_loaded}/${num_of_total}`);
 
+        }
 
+        /* Model */
+        const draco_loader = new DRACOLoader();
+
+        draco_loader.setDecoderPath("./node_modules/three/examples/js/libs/draco/");
+
+        const gltf_loader = new GLTFLoader(manager);
+
+        gltf_loader.setDRACOLoader(draco_loader);
+        gltf_loader.load("./static/model/glb-draco/scene.glb", gltf => {
+
+            result.model = gltf.scene;
+
+        });
+
+        /* Env texture */
+        const cube_texture_loader = new three.CubeTextureLoader(manager);
+
+        cube_texture_loader
+            .setPath("./static/texture/shanghai-bund-hdr-4k-img-1024/")
+            .load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"], texture => {
+
+                texture.encoding = three.sRGBEncoding;
+
+                result.env_texture = texture;
+
+            });
+
+        /* Map textures */
+        const texture_loader = new three.TextureLoader(manager);
+
+        // TODO
 
     });
 
