@@ -24,6 +24,7 @@ const scene = new three.Scene();
 
 /* Renderer */
 const use_antialias = window.devicePixelRatio < 2 ? true : false;
+console.log(use_antialias);
 const renderer = new three.WebGLRenderer({ antialias: use_antialias });
 
 renderer.setSize(window.innerWidth, window.innerHeight);

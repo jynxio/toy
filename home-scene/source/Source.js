@@ -43,6 +43,11 @@ function load() {
             texture.encoding = three.sRGBEncoding;
             textures[index] = texture;
 
+            // TODO 压缩图片  [TinyPNG](https://tinypng.com/)
+            // TODO The environment map. To ensure a physically correct rendering, you should only add environment maps which were preprocessed by PMREMGenerator. Default is null.
+            // TODO https://threejs.org/docs/index.html?q=material#api/zh/extras/PMREMGenerator
+            // TODO 请注意，如果在材质被使用之后，纹理贴图中这个值发生了改变， 需要触发Material.needsUpdate，来使得这个值在着色器中实现。
+
         }));
 
         /* Cube texture */
