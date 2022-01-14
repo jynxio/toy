@@ -17,6 +17,9 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 // TODO 请注意，如果在材质被使用之后，纹理贴图中这个值发生了改变， 需要触发Material.needsUpdate，来使
 //      得这个值在着色器中实现。
 
+// TODO 我使用tinypng来压缩环境贴图和模型纹理，压缩后文件体积减小到原来的54%，网页加载速度提升32%，
+//      模型质量几乎不变（极近距离观看时才会发现模型的皮肤变粗糙），环境贴图质量下降较为明显。
+
 /* ------------------------------------------------------------------------------------------------------ */
 /* Renderer */
 const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
@@ -212,7 +215,8 @@ function load() {
 
         /* Model */
         const draco_url = "./node_modules/three/examples/js/libs/draco/";
-        const model_url = "./static/model/glb-draco/scene.glb";
+        const model_url = "./static/model/glb-compress-draco/scene.glb";
+        // const model_url = "./static/model/glb-draco/scene.glb";
 
         const draco_loader = new DRACOLoader();
 
@@ -235,6 +239,12 @@ function load() {
             "./static/texture/shanghaibund-hdr4k-img1024-compress/ny.png",
             "./static/texture/shanghaibund-hdr4k-img1024-compress/pz.png",
             "./static/texture/shanghaibund-hdr4k-img1024-compress/nz.png",
+            // "./static/texture/shanghaibund-hdr4k-img1024/px.png",
+            // "./static/texture/shanghaibund-hdr4k-img1024/nx.png",
+            // "./static/texture/shanghaibund-hdr4k-img1024/py.png",
+            // "./static/texture/shanghaibund-hdr4k-img1024/ny.png",
+            // "./static/texture/shanghaibund-hdr4k-img1024/pz.png",
+            // "./static/texture/shanghaibund-hdr4k-img1024/nz.png",
         ];
 
         const env_texture_loader = new three.CubeTextureLoader(manager);
