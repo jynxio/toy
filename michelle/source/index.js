@@ -10,6 +10,13 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
+// TODO 图片压缩 https://tinypng.com/
+// TODO The environment map. To ensure a physically correct rendering, you should only
+//      add environment maps which were preprocessed by PMREMGenerator.Default is null.
+//      https://threejs.org/docs/index.html?q=material#api/zh/extras/PMREMGenerator
+// TODO 请注意，如果在材质被使用之后，纹理贴图中这个值发生了改变， 需要触发Material.needsUpdate，来使
+//      得这个值在着色器中实现。
+
 /* ------------------------------------------------------------------------------------------------------ */
 /* Renderer */
 const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
@@ -109,7 +116,15 @@ scene.add(...planes);
 
 /* Texture & Model */
 
-load();
+load().then(assets => {
+
+    const model = assets.model;
+    const env_texture = assets.env_texture;
+    const map_textures = assets.map_textures;
+
+    // TODO model
+
+});
 
 function load() {
 
@@ -119,9 +134,9 @@ function load() {
         map_textures: [],
     };
 
-    const manager = new three.LoadingManager();
-
     const promise = new Promise((resolve, reject) => {
+
+        const manager = new three.LoadingManager();
 
         manager.onLoad = onLoad;
         manager.onError = onError;
@@ -157,38 +172,55 @@ function load() {
         }
 
         /* Model */
+        const draco_url = "./node_modules/three/examples/js/libs/draco/";
+        const model_url = "./static/model/glb-draco/scene.glb";
+
         const draco_loader = new DRACOLoader();
 
-        draco_loader.setDecoderPath("./node_modules/three/examples/js/libs/draco/");
+        draco_loader.setDecoderPath(draco_url);
 
         const gltf_loader = new GLTFLoader(manager);
 
         gltf_loader.setDRACOLoader(draco_loader);
-        gltf_loader.load("./static/model/glb-draco/scene.glb", gltf => {
+        gltf_loader.load(model_url, gltf => {
 
             result.model = gltf.scene;
 
         });
 
         /* Env texture */
-        const cube_texture_loader = new three.CubeTextureLoader(manager);
+        const texture_urls = [
+            "./static/texture/shanghai-bund-hdr-4k-img-1024/px.png",
+            "./static/texture/shanghai-bund-hdr-4k-img-1024/nx.png",
+            "./static/texture/shanghai-bund-hdr-4k-img-1024/py.png",
+            "./static/texture/shanghai-bund-hdr-4k-img-1024/ny.png",
+            "./static/texture/shanghai-bund-hdr-4k-img-1024/pz.png",
+            "./static/texture/shanghai-bund-hdr-4k-img-1024/nz.png",
+        ];
 
-        cube_texture_loader
-            .setPath("./static/texture/shanghai-bund-hdr-4k-img-1024/")
-            .load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"], texture => {
+        const env_texture_loader = new three.CubeTextureLoader(manager);
 
-                texture.encoding = three.sRGBEncoding;
+        env_texture_loader.load(texture_urls, texture => {
 
-                result.env_texture = texture;
+            texture.encoding = three.sRGBEncoding;
 
-            });
+            result.env_texture = texture;
+
+        });
 
         /* Map textures */
-        const texture_loader = new three.TextureLoader(manager);
+        const map_texture_loader = new three.TextureLoader(manager);
+        texture_urls.forEach((item, index) => map_texture_loader.load(item, texture => {
 
-        // TODO
+            texture.encoding = three.sRGBEncoding;
+
+            result.map_textures.push(texture);
+
+        }));
 
     });
+
+    return promise;
 
 }
 
