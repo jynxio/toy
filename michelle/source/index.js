@@ -14,8 +14,6 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 // TODO The environment map. To ensure a physically correct rendering, you should only
 //      add environment maps which were preprocessed by PMREMGenerator.Default is null.
 //      https://threejs.org/docs/index.html?q=material#api/zh/extras/PMREMGenerator
-// TODO 请注意，如果在材质被使用之后，纹理贴图中这个值发生了改变， 需要触发Material.needsUpdate，来使
-//      得这个值在着色器中实现。
 
 // TODO 我使用tinypng来压缩环境贴图和模型纹理，压缩后文件体积减小到原来的54%，网页加载速度提升32%，
 //      模型质量几乎不变（极近距离观看时才会发现模型的皮肤变粗糙），环境贴图质量下降较为明显。
