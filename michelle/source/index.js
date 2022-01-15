@@ -167,8 +167,8 @@ function load() {
         }
 
         /* Model */
-        const draco_url = "./node_modules/three/examples/js/libs/draco/";
-        const model_url = "./static/model/glb-compress-draco/scene.glb";
+        const draco_url = "/node_modules/three/examples/js/libs/draco/";
+        const model_url = "/static/model/glb-compress-draco/scene.glb";
 
         const draco_loader = new DRACOLoader();
 
@@ -185,12 +185,12 @@ function load() {
 
         /* Env texture */
         const texture_urls = [
-            "./static/texture/shanghaibund-hdr4k-img1024-compress/px.png",
-            "./static/texture/shanghaibund-hdr4k-img1024-compress/nx.png",
-            "./static/texture/shanghaibund-hdr4k-img1024-compress/py.png",
-            "./static/texture/shanghaibund-hdr4k-img1024-compress/ny.png",
-            "./static/texture/shanghaibund-hdr4k-img1024-compress/pz.png",
-            "./static/texture/shanghaibund-hdr4k-img1024-compress/nz.png",
+            "/static/texture/shanghaibund-hdr4k-img1024-compress/px.png",
+            "/static/texture/shanghaibund-hdr4k-img1024-compress/nx.png",
+            "/static/texture/shanghaibund-hdr4k-img1024-compress/py.png",
+            "/static/texture/shanghaibund-hdr4k-img1024-compress/ny.png",
+            "/static/texture/shanghaibund-hdr4k-img1024-compress/pz.png",
+            "/static/texture/shanghaibund-hdr4k-img1024-compress/nz.png",
         ];
 
         const env_texture_loader = new three.CubeTextureLoader(manager);
