@@ -10,16 +10,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
-import GUI from "lil-gui";
-
-// TODO 图片压缩 https://tinypng.com/
-// TODO The environment map. To ensure a physically correct rendering, you should only
-//      add environment maps which were preprocessed by PMREMGenerator.Default is null.
-//      https://threejs.org/docs/index.html?q=material#api/zh/extras/PMREMGenerator
-
-// TODO 我使用tinypng来压缩环境贴图和模型纹理，压缩后文件体积减小到原来的54%，网页加载速度提升32%，
-//      模型质量几乎不变（极近距离观看时才会发现模型的皮肤变粗糙），环境贴图质量下降较为明显。
-
 /* ------------------------------------------------------------------------------------------------------ */
 /* Renderer */
 const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
@@ -53,7 +43,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 
 controls.enableDamping = true;
 controls.enablePan = false;
-// controls.enableZoom = false;
+controls.enableZoom = false;
 controls.target = new three.Vector3(0, 0, 0.01);
 
 /* Resize */
@@ -83,33 +73,6 @@ light.shadow.camera.far = 11.5;
 light.shadow.camera.near = 0.1;
 
 scene.add(light);
-
-// const gui = new GUI();
-
-// gui.add(light.position, "x").min(- 10).max(10).step(0.1);
-// gui.add(light.position, "y").min(- 10).max(10).step(0.1);
-// gui.add(light.position, "z").min(- 10).max(10).step(0.1);
-
-// const helper_1 = new three.DirectionalLightHelper(light);
-
-// scene.add(helper_1);
-
-// const helper_2 = new three.CameraHelper(light.shadow.camera);
-
-// scene.add(helper_2);
-
-// window.requestAnimationFrame(function loop() {
-
-//     window.requestAnimationFrame(loop);
-
-//     helper_1.update();
-
-//     light.shadow.camera.updateProjectionMatrix();
-//     helper_2.update();
-
-// });
-
-/* Texture & model */
 
 load().then(assets => {
 
@@ -150,7 +113,6 @@ load().then(assets => {
     const ground = new three.Mesh(
         new three.PlaneGeometry(20, 20).rotateX(- Math.PI / 2),
         new three.ShadowMaterial({ opacity: 0.35 }),
-        // new three.MeshStandardMaterial(),
     );
 
     ground.position.copy(model.position);
@@ -207,7 +169,6 @@ function load() {
         /* Model */
         const draco_url = "./node_modules/three/examples/js/libs/draco/";
         const model_url = "./static/model/glb-compress-draco/scene.glb";
-        // const model_url = "./static/model/glb-draco/scene.glb";
 
         const draco_loader = new DRACOLoader();
 
@@ -230,12 +191,6 @@ function load() {
             "./static/texture/shanghaibund-hdr4k-img1024-compress/ny.png",
             "./static/texture/shanghaibund-hdr4k-img1024-compress/pz.png",
             "./static/texture/shanghaibund-hdr4k-img1024-compress/nz.png",
-            // "./static/texture/shanghaibund-hdr4k-img1024/px.png",
-            // "./static/texture/shanghaibund-hdr4k-img1024/nx.png",
-            // "./static/texture/shanghaibund-hdr4k-img1024/py.png",
-            // "./static/texture/shanghaibund-hdr4k-img1024/ny.png",
-            // "./static/texture/shanghaibund-hdr4k-img1024/pz.png",
-            // "./static/texture/shanghaibund-hdr4k-img1024/nz.png",
         ];
 
         const env_texture_loader = new three.CubeTextureLoader(manager);
