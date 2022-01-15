@@ -10,6 +10,20 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
+import px_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/px.png";
+
+import nx_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/nx.png";
+
+import py_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/py.png";
+
+import ny_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/ny.png";
+
+import pz_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/pz.png";
+
+import nz_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/nz.png";
+
+import model_url from "/static/model/glb-compress-draco/scene.glb";
+
 /* ------------------------------------------------------------------------------------------------------ */
 /* Renderer */
 const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
@@ -167,12 +181,9 @@ function load() {
         }
 
         /* Model */
-        const draco_url = "/node_modules/three/examples/js/libs/draco/";
-        const model_url = "/static/model/glb-compress-draco/scene.glb";
-
         const draco_loader = new DRACOLoader();
 
-        draco_loader.setDecoderPath(draco_url);
+        draco_loader.setDecoderPath("/static/draco/"); // TODO
 
         const gltf_loader = new GLTFLoader(manager);
 
@@ -184,18 +195,9 @@ function load() {
         });
 
         /* Env texture */
-        const texture_urls = [
-            "/static/texture/shanghaibund-hdr4k-img1024-compress/px.png",
-            "/static/texture/shanghaibund-hdr4k-img1024-compress/nx.png",
-            "/static/texture/shanghaibund-hdr4k-img1024-compress/py.png",
-            "/static/texture/shanghaibund-hdr4k-img1024-compress/ny.png",
-            "/static/texture/shanghaibund-hdr4k-img1024-compress/pz.png",
-            "/static/texture/shanghaibund-hdr4k-img1024-compress/nz.png",
-        ];
-
         const env_texture_loader = new three.CubeTextureLoader(manager);
 
-        env_texture_loader.load(texture_urls, texture => {
+        env_texture_loader.load([px_url, nx_url, py_url, ny_url, pz_url, nz_url], texture => {
 
             texture.encoding = three.sRGBEncoding;
 
