@@ -10,6 +10,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
+import GUI from "lil-gui";
+
 // TODO 图片压缩 https://tinypng.com/
 // TODO The environment map. To ensure a physically correct rendering, you should only
 //      add environment maps which were preprocessed by PMREMGenerator.Default is null.
@@ -52,7 +54,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 // controls.enableZoom = false;
-controls.target = new three.Vector3(0, 0, - 0.01);
+controls.target = new three.Vector3(0, 0, 0.01);
 
 /* Resize */
 window.addEventListener("resize", _ => {
@@ -67,9 +69,9 @@ window.addEventListener("resize", _ => {
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* Light */
-const light = new three.DirectionalLight(0xffffff, 3);
+const light = new three.DirectionalLight(0xff00ff, 3);
 
-light.position.set(0, - 1.4, - 10);
+light.position.set(- 1, - 1, 10);
 light.castShadow = true;
 light.shadow.mapSize.x = 1024;
 light.shadow.mapSize.y = 1024;
@@ -82,53 +84,44 @@ light.shadow.camera.near = 0.1;
 
 scene.add(light);
 
-/* Plane */
-const plane_geometry = new three.PlaneGeometry(20, 20);
+// const gui = new GUI();
 
-const planes = []; // px nx py ny pz nz
+// gui.add(light.position, "x").min(- 10).max(10).step(0.1);
+// gui.add(light.position, "y").min(- 10).max(10).step(0.1);
+// gui.add(light.position, "z").min(- 10).max(10).step(0.1);
 
-for (let i = 0; i < 6; i++) planes.push(new three.Mesh(plane_geometry, new three.MeshBasicMaterial()));
+// const helper_1 = new three.DirectionalLightHelper(light);
 
-planes[0].position.set(10, 0, 0);
-planes[0].rotateY(- Math.PI / 2);
+// scene.add(helper_1);
 
-planes[1].position.set(- 10, 0, 0);
-planes[1].rotateY(Math.PI / 2);
+// const helper_2 = new three.CameraHelper(light.shadow.camera);
 
-planes[2].position.set(0, 10, 0);
-planes[2].rotateX(Math.PI / 2);
+// scene.add(helper_2);
 
-planes[3].position.set(0, - 10, 0);
-planes[3].rotateX(- Math.PI / 2);
+// window.requestAnimationFrame(function loop() {
 
-planes[4].position.set(0, 0, - 10);
+//     window.requestAnimationFrame(loop);
 
-planes[5].position.set(0, 0, 10);
-planes[5].rotateY(Math.PI);
+//     helper_1.update();
 
-scene.add(...planes);
+//     light.shadow.camera.updateProjectionMatrix();
+//     helper_2.update();
 
-/* Texture & Model */
+// });
+
+/* Texture & model */
 
 load().then(assets => {
 
-    const model = assets.model;
-    const env_texture = assets.env_texture;
-    const map_textures = assets.map_textures;
+    const { model, texture } = assets;
 
-    /* Planes */
-    planes.forEach((item, index) => {
-
-        const material = item.material;
-
-        material.map = map_textures[index];
-        material.needsUpdate = true;
-
-    });
+    /* Environment */
+    scene.background = texture;
 
     /* Model */
-    model.scale.set(0.015, 0.015, 0.015);
-    model.position.set(0, - 1.99, - 7.76);
+    model.rotateY(Math.PI);
+    model.scale.set(0.012, 0.012, 0.012);
+    model.position.set(0, - 1.99, 7.76);
 
     scene.add(model);
 
@@ -143,7 +136,7 @@ load().then(assets => {
             if (item instanceof three.Mesh === false) return;
             if (item.material instanceof three.MeshStandardMaterial === false) return;
 
-            item.material.envMap = env_texture;
+            item.material.envMap = texture;
             item.material.envMapIntensity = 8;
 
             item.castShadow = true;
@@ -157,6 +150,7 @@ load().then(assets => {
     const ground = new three.Mesh(
         new three.PlaneGeometry(20, 20).rotateX(- Math.PI / 2),
         new three.ShadowMaterial({ opacity: 0.35 }),
+        // new three.MeshStandardMaterial(),
     );
 
     ground.position.copy(model.position);
@@ -170,8 +164,7 @@ function load() {
 
     const result = {
         model: undefined,
-        env_texture: undefined,
-        map_textures: [],
+        texture: undefined,
     };
 
     const promise = new Promise((resolve, reject) => {
@@ -251,19 +244,9 @@ function load() {
 
             texture.encoding = three.sRGBEncoding;
 
-            result.env_texture = texture;
+            result.texture = texture;
 
         });
-
-        /* Map textures */
-        const map_texture_loader = new three.TextureLoader(manager);
-        texture_urls.forEach((item, index) => map_texture_loader.load(item, texture => {
-
-            texture.encoding = three.sRGBEncoding;
-
-            result.map_textures[index] = texture;
-
-        }));
 
     });
 
