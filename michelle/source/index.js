@@ -8,7 +8,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+// import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 import px_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/px.png";
 
@@ -22,7 +22,7 @@ import pz_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/pz.png";
 
 import nz_url from "/static/texture/shanghaibund-hdr4k-img1024-compress/nz.png";
 
-import model_url from "/static/model/glb-compress-draco/scene.glb";
+import model_url from "/static/model/glb-compress/scene.glb";
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* Renderer */
@@ -181,13 +181,13 @@ function load() {
         }
 
         /* Model */
-        const draco_loader = new DRACOLoader();
+        // const draco_loader = new DRACOLoader();
 
-        draco_loader.setDecoderPath("/static/draco/"); // TODO
+        // draco_loader.setDecoderPath("/static/draco/");
 
         const gltf_loader = new GLTFLoader(manager);
 
-        gltf_loader.setDRACOLoader(draco_loader);
+        // gltf_loader.setDRACOLoader(draco_loader);
         gltf_loader.load(model_url, gltf => {
 
             result.model = gltf.scene;
