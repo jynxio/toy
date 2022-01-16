@@ -4,6 +4,11 @@ Example: https://galaxy-six.vercel.app/
 Preview:  
 ![Galaxy](image-hosting/galaxy.png)  
 
+## Michelle
+Example: https://michelle-six.vercel.app/  
+Preview:  
+![michelle](image-hosting/michelle.png)  
+
 ## Material-ball
 Example: https://material-ball.vercel.app/  
 Preview:  
