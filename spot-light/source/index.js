@@ -9,14 +9,13 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import GUI from "lil-gui";
 
 /* ------------------------------------------------------------------------------------------------------ */
-/* Debug */
-const gui = new GUI();
-
 /* Renderer */
 const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = three.PCFSoftShadowMap;
 
 document.body.append(renderer.domElement);
 
@@ -80,32 +79,21 @@ const ambient_light = new three.AmbientLight(0xffffff, 0.1);
 scene.add(ambient_light);
 
 /* Spot light */
-const spot_light_1 = new SpotLight();
-const spot_light_2 = new SpotLight();
-const spot_light_3 = new SpotLight();
-
-spot_light_1.position.set(0, 5, - 5);
-spot_light_1.target = tetrahedron;
-spot_light_1.color = new three.Color(0xff00ff);
-
-spot_light_2.position.set(- 5 / 2 * Math.sqrt(3), 5, 5 / 2);
-spot_light_2.target = tetrahedron;
-spot_light_2.color = new three.Color(0x00ffff);
-
-spot_light_3.position.set(5 / 2 * Math.sqrt(3), 5, 5 / 2);
-spot_light_3.target = tetrahedron;
-spot_light_3.color = new three.Color(0xffff00);
+const spot_light_1 = new SpotLight(0xff00ff, tetrahedron);
+const spot_light_2 = new SpotLight(0x00ffff, tetrahedron);
+const spot_light_3 = new SpotLight(0xffff00, tetrahedron);
 
 scene.add(spot_light_1, spot_light_2, spot_light_3);
 
-function SpotLight() {
+function SpotLight(color, target) {
 
-    const light = new three.SpotLight();
+    const light = new three.SpotLight(color);
 
-    light.angle = 0.2;              // 照射范围。
+    light.target = target;
+    // light.angle = 0.2;              // 照射范围。
     // light.penumbra = 0.2;           // 半影衰减百分比。
     // light.decay = 1;                // 随着光照距离的衰减量。
-    light.distance = 15;            // 光照距离。
+    // light.distance = 20;            // 光照距离。
     light.castShadow = true;        // 启用阴影投射。
     light.shadow.mapSize.x = 1024;  // 阴影贴图的x。
     light.shadow.mapSize.y = 1024;  // 阴影贴图的y。
@@ -126,17 +114,110 @@ const camera_helper_2 = new three.CameraHelper(spot_light_2.shadow.camera);
 const camera_helper_3 = new three.CameraHelper(spot_light_3.shadow.camera);
 
 scene.add(light_helper_1, light_helper_2, light_helper_3);
-scene.add(camera_helper_1, camera_helper_2, camera_helper_3);
+// scene.add(camera_helper_1, camera_helper_2, camera_helper_3);
 
-// gui.add(light.position, "x").min(- 10).max(10).step(0.1).name("X").onChange(updateLight);
-// gui.add(light.position, "y").min(- 10).max(10).step(0.1).name("Y").onChange(updateLight);
-// gui.add(light.position, "z").min(- 10).max(10).step(0.1).name("Z").onChange(updateLight);
-// gui.add(light, "angle").min(0).max(Math.PI / 2).step(Math.PI / 100).name("Angle").onChange(updateLight);
-// gui.add(light, "penumbra").min(0).max(1).step(0.1).name("Penumbra").onChange(updateLight);
-// gui.add(light, "decay").min(0).max(10).step(0.1).name("Decay").onChange(updateLight);
-// gui.add(light, "distance").min(0).max(40).step(0.1).name("Distance").onChange(updateLight);
+/* Debug spot light */
+const gui = new GUI();
 
-// TODO 阴影BUG
+const debug_options = {
+    height: 1,
+    radius: 1,
+    angle: 0.2,
+    penumbra: 0.2,
+    decay: 1,
+    distance: 10,
+};
+
+updateHeight(debug_options.height);
+updateRadius(debug_options.radius);
+updateAngle(debug_options.angle);
+updatePenumbra(debug_options.penumbra);
+updateDecay(debug_options.decay);
+updateDistance(debug_options.distance);
+
+gui.add(debug_options, "height").min(0).max(20).step(0.01).name("Height").onChange(updateHeight);
+gui.add(debug_options, "radius").min(0).max(20).step(0.01).name("Radius").onChange(updateRadius);
+gui.add(debug_options, "angle").min(0).max(Math.PI / 2).step(Math.PI / 200).name("Angle").onChange(updateAngle);
+gui.add(debug_options, "penumbra").min(0).max(1).step(0.01).name("Penumbra").onChange(updatePenumbra);
+gui.add(debug_options, "decay").min(0).max(10).step(0.01).name("Decay").onChange(updateDecay);
+gui.add(debug_options, "distance").min(0).max(50).step(0.01).name("Distance").onChange(updateDistance);
+
+function updateHeight() {
+
+    const h = debug_options.height;
+
+    spot_light_1.position.y = h;
+    spot_light_2.position.y = h;
+    spot_light_3.position.y = h;
+
+    updateLight();
+
+}
+
+function updateRadius() {
+
+    const r = debug_options.radius;
+
+    spot_light_1.position.x = 0;
+    spot_light_1.position.z = r;
+
+    spot_light_2.position.x = 2 * r / Math.sqrt(3);
+    spot_light_2.position.z = - r;
+
+    spot_light_3.position.x = - 2 * r / Math.sqrt(3);
+    spot_light_3.position.z = - r;
+
+    updateLight();
+
+}
+
+function updateAngle() {
+
+    const a = debug_options.angle;
+
+    spot_light_1.angle = a;
+    spot_light_2.angle = a;
+    spot_light_3.angle = a;
+
+    updateLight();
+
+}
+
+function updatePenumbra() {
+
+    const p = debug_options.penumbra;
+
+    spot_light_1.penumbra = p;
+    spot_light_2.penumbra = p;
+    spot_light_3.penumbra = p;
+
+    updateLight();
+
+}
+
+function updateDecay() {
+
+    const d = debug_options.decay;
+
+    spot_light_1.decay = d;
+    spot_light_2.decay = d;
+    spot_light_3.decay = d;
+
+    updateLight();
+
+}
+
+function updateDistance() {
+
+    const d = debug_options.distance;
+
+    spot_light_1.distance = d;
+    spot_light_2.distance = d;
+    spot_light_3.distance = d;
+
+    updateLight();
+
+}
 
 function updateLight() {
 
