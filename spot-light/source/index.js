@@ -6,6 +6,8 @@ import * as three from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
+import SpotLightShell from "./SpotLightShell";
+
 import GUI from "lil-gui";
 
 /* ------------------------------------------------------------------------------------------------------ */
@@ -83,7 +85,7 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 /* Ambient light */
-const ambient_light = new three.AmbientLight(0xffffff, 0.1);
+const ambient_light = new three.AmbientLight(0xffffff, 0.05);
 
 scene.add(ambient_light);
 
@@ -113,6 +115,13 @@ function SpotLight(color, target) {
 
 }
 
+/* Spot light shell */
+const light_shell_1 = new SpotLightShell(spot_light_1, undefined, 0.1);
+const light_shell_2 = new SpotLightShell(spot_light_2, undefined, 0.1);
+const light_shell_3 = new SpotLightShell(spot_light_3, undefined, 0.1);
+
+scene.add(light_shell_1, light_shell_2, light_shell_3);
+
 /* Spot light helper */
 const light_helper_1 = new three.SpotLightHelper(spot_light_1);
 const light_helper_2 = new three.SpotLightHelper(spot_light_2);
@@ -122,7 +131,7 @@ const camera_helper_1 = new three.CameraHelper(spot_light_1.shadow.camera);
 const camera_helper_2 = new three.CameraHelper(spot_light_2.shadow.camera);
 const camera_helper_3 = new three.CameraHelper(spot_light_3.shadow.camera);
 
-scene.add(light_helper_1, light_helper_2, light_helper_3);
+// scene.add(light_helper_1, light_helper_2, light_helper_3);
 // scene.add(camera_helper_1, camera_helper_2, camera_helper_3);
 
 /* Debug spot light */
@@ -227,6 +236,10 @@ function updateDistance() {
 }
 
 function updateLight() {
+
+    light_shell_1.update();
+    light_shell_2.update();
+    light_shell_3.update();
 
     light_helper_1.update();
     light_helper_2.update();
