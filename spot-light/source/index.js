@@ -123,7 +123,7 @@ const light_shell_3 = new SpotLightShell(spot_light_3, 1);
 scene.add(light_shell_1, light_shell_2, light_shell_3);
 
 /* Spot light’s animation */
-function animateSpotLight(light) {
+function animateSpotLight(light, radius, height) {
 
     let x_source = light.position.x;
     let y_source = light.position.y;
@@ -137,9 +137,12 @@ function animateSpotLight(light) {
 
     function calculateTargetValue() {
 
-        const x_normal = Math.random() - 0.5;
-        const z_normal = Math.random() - 0.5;
-        const y_normal = Math.sqrt(1 - x_normal * x_normal - z_normal * z_normal);
+        // TODO 从球面方程开始写起
+        const x = Math.random() * radius;
+        const z = Math.random() * radius;
+        // const y = radius * radius - 
+
+
 
     }
 
