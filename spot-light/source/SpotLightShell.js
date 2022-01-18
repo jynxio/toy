@@ -19,7 +19,7 @@ export default class SpotLightHelper extends three.Object3D {
         this.light = light;
         this.light.updateMatrixWorld();
 
-        this.opacity = 1;
+        this.opacity = opacity;
 
         this.matrix = light.matrixWorld;
         this.matrixAutoUpdate = false;
@@ -50,7 +50,7 @@ export default class SpotLightHelper extends three.Object3D {
 
         geometry.setAttribute('position', new three.Float32BufferAttribute(positions, 3));
 
-        const material = new three.LineBasicMaterial();
+        const material = new three.LineBasicMaterial({ transparent: true, opacity: this.opacity });
 
         this.cone = new three.LineSegments(geometry, material);
         this.add(this.cone);

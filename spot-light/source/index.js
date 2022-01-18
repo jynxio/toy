@@ -116,11 +116,34 @@ function SpotLight(color, target) {
 }
 
 /* Spot light shell */
-const light_shell_1 = new SpotLightShell(spot_light_1, undefined, 0.1);
-const light_shell_2 = new SpotLightShell(spot_light_2, undefined, 0.1);
-const light_shell_3 = new SpotLightShell(spot_light_3, undefined, 0.1);
+const light_shell_1 = new SpotLightShell(spot_light_1, 1);
+const light_shell_2 = new SpotLightShell(spot_light_2, 1);
+const light_shell_3 = new SpotLightShell(spot_light_3, 1);
 
 scene.add(light_shell_1, light_shell_2, light_shell_3);
+
+/* Spot light’s animation */
+function animateSpotLight(light) {
+
+    let x_source = light.position.x;
+    let y_source = light.position.y;
+    let z_source = light.position.z;
+    let a_source = light.angle;
+
+    let x_target;
+    let y_target;
+    let z_target;
+    let a_target;
+
+    function calculateTargetValue() {
+
+        const x_normal = Math.random() - 0.5;
+        const z_normal = Math.random() - 0.5;
+        const y_normal = Math.sqrt(1 - x_normal * x_normal - z_normal * z_normal);
+
+    }
+
+}
 
 /* Spot light helper */
 const light_helper_1 = new three.SpotLightHelper(spot_light_1);
