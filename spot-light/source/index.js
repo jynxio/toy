@@ -9,6 +9,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import GUI from "lil-gui";
 
 /* ------------------------------------------------------------------------------------------------------ */
+/* GUI */
+const gui = new GUI();
+
 /* Renderer */
 const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
 
@@ -51,6 +54,12 @@ window.addEventListener("resize", _ => {
 });
 
 /* ------------------------------------------------------------------------------------------------------ */
+/* Fog */
+scene.fog = new three.FogExp2(0x262837, 0.08);
+scene.background = new three.Color(0x262837);
+
+gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
+
 /* Tetrahedron */
 const tetrahedron = new three.Mesh(
     new three.TetrahedronGeometry(1, 0),
@@ -64,8 +73,8 @@ scene.add(tetrahedron);
 
 /* Ground */
 const ground = new three.Mesh(
-    new three.PlaneGeometry(25, 25).rotateX(-Math.PI / 2),
-    new three.MeshStandardMaterial({ color: 0x888888 }),
+    new three.CircleGeometry(50, 254).rotateX(-Math.PI / 2),
+    new three.MeshStandardMaterial({ color: 0x262837 }),
 );
 
 ground.position.set(0, -2, 0);
@@ -90,10 +99,10 @@ function SpotLight(color, target) {
     const light = new three.SpotLight(color);
 
     light.target = target;
-    // light.angle = 0.2;              // 照射范围。
-    // light.penumbra = 0.2;           // 半影衰减百分比。
-    // light.decay = 1;                // 随着光照距离的衰减量。
-    // light.distance = 20;            // 光照距离。
+    light.angle = 0.3;              // 照射范围。
+    light.penumbra = 1;             // 半影衰减百分比。
+    light.decay = 0;                // 随着光照距离的衰减量。
+    light.distance = 20;            // 光照距离。
     light.castShadow = true;        // 启用阴影投射。
     light.shadow.mapSize.x = 1024;  // 阴影贴图的x。
     light.shadow.mapSize.y = 1024;  // 阴影贴图的y。
@@ -117,15 +126,13 @@ scene.add(light_helper_1, light_helper_2, light_helper_3);
 // scene.add(camera_helper_1, camera_helper_2, camera_helper_3);
 
 /* Debug spot light */
-const gui = new GUI();
-
 const debug_options = {
-    height: 1,
-    radius: 1,
-    angle: 0.2,
-    penumbra: 0.2,
-    decay: 1,
-    distance: 10,
+    height: 7,
+    radius: 1.6,
+    angle: 0.3,
+    penumbra: 1,
+    decay: 0,
+    distance: 15,
 };
 
 updateHeight(debug_options.height);
