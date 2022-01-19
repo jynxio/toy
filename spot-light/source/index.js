@@ -138,8 +138,9 @@ function animateSpotLight(light, radius, height) {
     function calculateTargetValue() {
 
         // TODO 从球面方程开始写起
-        const x = Math.random() * radius;
-        const z = Math.random() * radius;
+        const range = 0.5;
+        const x = Math.random() * range;
+        const z = Math.random() * range;
         // const y = radius * radius - 
 
 
