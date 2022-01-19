@@ -141,7 +141,7 @@ function animateSpotLight(light, radius, height) {
         const range = 0.5;
         const x = Math.random() * range;
         const z = Math.random() * range;
-        // const y = radius * radius - 
+        const y = (radius ** 2 - x ** 2 - z ** 2) ** 0.5;
 
 
 
