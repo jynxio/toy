@@ -165,7 +165,7 @@ const camera_helper_3 = new three.CameraHelper(spot_light_0xffff00.shadow.camera
 
 /* Debug spot light */
 const debug_options = {
-    height: 2,
+    height: 10,
     radius: 1.6,
     angle: 0.4,
     penumbra: 1,
