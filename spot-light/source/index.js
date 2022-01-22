@@ -12,6 +12,14 @@ import SpotLightShell from "./SpotLightShell";
 
 import GUI from "lil-gui";
 
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+
 /* ------------------------------------------------------------------------------------------------------ */
 /* GUI */
 const gui = new GUI();
@@ -58,11 +66,134 @@ window.addEventListener("resize", _ => {
 });
 
 /* ------------------------------------------------------------------------------------------------------ */
-/* Fog */
-scene.fog = new three.FogExp2(0x262837, 0.08);
-scene.background = new three.Color(0x262837);
+/* Test */
+const g = new three.ConeGeometry(2, 10, 64, 1);
+const m = new three.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.01,
+    side: three.DoubleSide,
+});
+const p = new three.Mesh(g, m);
 
-gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
+m.depthTest = false;
+m.depthWrite = false;
+m.needsUpdate = true;
+
+p.renderOrder = 1;
+p.position.y = 3;
+
+scene.add(p);
+
+function floodlight({
+    renderer,
+    scene,
+    camera,
+    targets,
+}) {
+
+    /* 合成器1（制造全局泛光） */
+    const composer_bloom = new EffectComposer(renderer);                                                              // 效果合成器
+    const pass_render = new RenderPass(scene, camera);                                                                // 后期处理（基本）
+    const pass_bloom = new UnrealBloomPass(
+        renderer.getSize(new three.Vector2),
+        1.5,
+        0.4,
+        0.85,
+    );
+
+    pass_bloom.threshold = 0;
+    pass_bloom.strength = 10;
+    pass_bloom.radius = 0.5;
+
+    composer_bloom.renderToScreen = false;
+    composer_bloom.addPass(pass_render);
+    composer_bloom.addPass(pass_bloom);
+    composer_bloom.setSize(...renderer.getSize(new three.Vector2).toArray());
+
+    /* 合成器2（制造局部泛光） */
+    const pass_final = new ShaderPass(
+        new three.ShaderMaterial({
+            uniforms: {
+                baseTexture: { value: null },
+                bloomTexture: { value: composer_bloom.renderTarget2.texture }
+            },
+            vertexShader: "varying vec2 vUv;void main() {vUv = uv;gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );}",
+            fragmentShader: "uniform sampler2D baseTexture;uniform sampler2D bloomTexture;varying vec2 vUv;void main() {gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );}",
+            defines: {}
+        }),
+        "baseTexture"
+    );
+
+    pass_final.needsSwap = true;
+
+    const composer_final = new EffectComposer(renderer);
+
+    composer_final.addPass(pass_render);
+    composer_final.addPass(pass_final);
+    composer_final.setSize(window.innerWidth, window.innerHeight);
+
+    const material_black = new three.MeshBasicMaterial({ color: 0x000000 });
+
+    renderer.setAnimationLoop(_ => {
+
+        const materials_map = new Map();
+
+        scene.traverse(object3d => {
+
+            if (!object3d.material) return;
+
+            let is_target = false;
+
+            for (let i = 0; i < targets.length; i++) {
+
+                if (targets[i] !== object3d) continue;
+
+                is_target = true;
+
+                break;
+
+            }
+
+            if (is_target) return;
+
+            const id = object3d.id;
+            const material = object3d.material;
+
+            materials_map.set(id, material);
+
+            object3d.material = material_black;
+
+        });
+
+        composer_bloom.render();
+
+        materials_map.forEach((value, key) => {
+
+            scene.getObjectById(key).material = value;
+
+        });
+
+        composer_final.render();
+
+    });
+
+    window.addEventListener("resize", _ => {
+
+        const size = renderer.getSize(new three.Vector2).toArray();
+
+        composer_bloom.setSize(...size);
+        composer_final.setSize(...size);
+
+    });
+
+}
+
+/* Fog */
+// scene.fog = new three.FogExp2(0x262837, 0.08);
+// scene.background = new three.Color(0x262837);
+
+// gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
 
 /* Lensflare：如果使用Lensflare类，则可以实现更多层级的耀斑。 */
 const texture_loader = new three.TextureLoader();
@@ -312,3 +443,5 @@ renderer.setAnimationLoop(function loop() {
     renderer.render(scene, camera);
 
 });
+
+floodlight({ renderer, scene, camera, targets: [p] });
