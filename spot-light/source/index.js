@@ -8,10 +8,6 @@ import { Lensflare, LensflareElement } from "three/examples/jsm/objects/Lensflar
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import SpotLightShell from "./SpotLightShell";
-
-import GUI from "lil-gui";
-
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -19,6 +15,12 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+
+import SpotLightShell from "./SpotLightShell";
+
+import SpotLightHelper from "./SpotLightHelper";
+
+import GUI from "lil-gui";
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* GUI */
@@ -83,7 +85,7 @@ m.needsUpdate = true;
 p.renderOrder = 1;
 p.position.y = 3;
 
-scene.add(p);
+// scene.add(p);
 
 function floodlight({
     renderer,
@@ -252,9 +254,9 @@ const ambient_light = new three.AmbientLight(0xffffff, 0.05);
 scene.add(ambient_light);
 
 /* Spot light */
-const spot_light_0xff00ff = new SpotLight(0xff00ff, tetrahedron);
-const spot_light_0x00ffff = new SpotLight(0x00ffff, tetrahedron);
-const spot_light_0xffff00 = new SpotLight(0xffff00, tetrahedron);
+const spot_light_0xff00ff = new SpotLight(0xffffff, tetrahedron);
+const spot_light_0x00ffff = new SpotLight(0xffffff, tetrahedron);
+const spot_light_0xffff00 = new SpotLight(0xffffff, tetrahedron);
 
 spot_light_0xff00ff.add(lensflare_0xff00ff);
 spot_light_0x00ffff.add(lensflare_0x00ffff);
@@ -282,9 +284,27 @@ function SpotLight(color, target) {
 }
 
 /* Spot light shell */
-const light_shell_1 = new SpotLightShell(spot_light_0xff00ff, 1);
-const light_shell_2 = new SpotLightShell(spot_light_0x00ffff, 1);
-const light_shell_3 = new SpotLightShell(spot_light_0xffff00, 1);
+const light_shell_1 = new SpotLightHelper(spot_light_0xff00ff, undefined, 0.01);
+const light_shell_2 = new SpotLightHelper(spot_light_0x00ffff, undefined, 0.01);
+const light_shell_3 = new SpotLightHelper(spot_light_0xffff00, undefined, 0.01);
+
+light_shell_1.cone.material.blending = three.AdditiveBlending;
+light_shell_1.cone.material.depthTest = false;
+light_shell_1.cone.material.depthWrite = false;
+light_shell_1.cone.material.needsUpdate = true;
+light_shell_1.cone.renderOrder = 1;
+
+light_shell_2.cone.material.blending = three.AdditiveBlending;
+light_shell_2.cone.material.depthTest = false;
+light_shell_2.cone.material.depthWrite = false;
+light_shell_2.cone.material.needsUpdate = true;
+light_shell_2.cone.renderOrder = 1;
+
+light_shell_3.cone.material.blending = three.AdditiveBlending;
+light_shell_3.cone.material.depthTest = false;
+light_shell_3.cone.material.depthWrite = false;
+light_shell_3.cone.material.needsUpdate = true;
+light_shell_3.cone.renderOrder = 1;
 
 scene.add(light_shell_1, light_shell_2, light_shell_3);
 
@@ -304,7 +324,7 @@ const camera_helper_3 = new three.CameraHelper(spot_light_0xffff00.shadow.camera
 const debug_options = {
     height: 10,
     radius: 1.6,
-    angle: 0.4,
+    angle: 0.3,
     penumbra: 1,
     decay: 1,
     distance: 15,
@@ -450,4 +470,4 @@ renderer.setAnimationLoop(function loop() {
 
 });
 
-floodlight({ renderer, scene, camera, targets: [p] });
+floodlight({ renderer, scene, camera, targets: [light_shell_1.cone, light_shell_2.cone, light_shell_3.cone] });
