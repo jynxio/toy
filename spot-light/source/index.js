@@ -52,9 +52,7 @@ controls.enableDamping = true;
 scene.fog = new three.FogExp2(0x262837, 0.05);
 scene.background = new three.Color(0x262837);
 
-// gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
-
-/* Lensflare */
+gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
 
 /* Tetrahedron */
 const tetrahedron = new three.Mesh(
@@ -78,12 +76,11 @@ ground.receiveShadow = true;
 
 scene.add(ground);
 
-/* Ambient light */
+/* Light */
 const ambient_light = new three.AmbientLight(0xffffff, 0.05);
 
 scene.add(ambient_light);
 
-/* Spot light */
 const spot_light_1 = new SpotLight(0xffffff, tetrahedron);
 const spot_light_2 = new SpotLight(0xffffff, tetrahedron);
 const spot_light_3 = new SpotLight(0xffffff, tetrahedron);
@@ -109,7 +106,7 @@ function SpotLight(color, target) {
 
 }
 
-/* Spot light helper */
+/* Helper */
 const helper_color = undefined;
 const helper_opacity = 0.01;
 
@@ -144,7 +141,6 @@ const camera_helper_3 = new three.CameraHelper(spot_light_3.shadow.camera);
 // scene.add(light_helper_1, light_helper_2, light_helper_3);
 // scene.add(camera_helper_1, camera_helper_2, camera_helper_3);
 
-/* Debug spot light */
 const debug_options = {
     height: 10,
     radius: 1.6,
@@ -304,7 +300,16 @@ composer_final.addPass(pass_final);
 composer_final.setSize(window.innerWidth, window.innerHeight);
 
 const flood_object3d = [helper_1.cone, helper_2.cone, helper_3.cone];
-const flood_object3d_materials = new Map();
+const flood_object3d_map = new Map();
+const other_object3d_map = new Map();
+
+scene.traverse(object3d => {
+
+    if (!object3d.material) return;
+
+    other_object3d_map.set(object3d, object3d.material);
+
+});
 
 flood_object3d.forEach(object3d => {
 
@@ -312,19 +317,10 @@ flood_object3d.forEach(object3d => {
 
         if (!object3d.material) return;
 
-        flood_object3d_materials.set(object3d.id, object3d.material);
+        flood_object3d_map.set(object3d, object3d.material);
+        other_object3d_map.delete(object3d);
 
     });
-
-});
-
-const all_object3d_materials = new Map();
-
-scene.traverse(object3d => {
-
-    if (!object3d.material) return;
-
-    all_object3d_materials.set(object3d.id, object3d.material);
 
 });
 
@@ -338,25 +334,7 @@ let delta_time = 0;
 renderer.setAnimationLoop(function loop() {
 
     /*  */
-    scene.traverse(object3d => {
-
-        if (!object3d.material) return;
-
-        object3d.material = material_0x000000;
-
-    });
-
-    flood_object3d.forEach(object3d => {
-
-        object3d.traverse(object3d => {
-
-            if (!object3d.material) return;
-
-            object3d.material = flood_object3d_materials.get(object3d.id);
-
-        });
-
-    });
+    for (const object3d of other_object3d_map.keys()) object3d.material = material_0x000000;
 
     scene.fog.color.set(0x000000);
     scene.background.set(0x000000);
@@ -365,7 +343,7 @@ renderer.setAnimationLoop(function loop() {
     composer_bloom.render();
 
     /*  */
-    all_object3d_materials.forEach((material, id) => scene.getObjectById(id).material = material);
+    other_object3d_map.forEach((material, object3d) => object3d.material = material);
 
     scene.fog.color.set(0x262837);
     scene.background.set(0x262837);
