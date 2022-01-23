@@ -4,8 +4,6 @@ import "/style/index.css";
 
 import * as three from "three";
 
-import { Lensflare, LensflareElement } from "three/examples/jsm/objects/Lensflare";
-
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
@@ -15,8 +13,6 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-
-import SpotLightShell from "./SpotLightShell";
 
 import SpotLightHelper from "./SpotLightHelper";
 
@@ -51,129 +47,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 
 controls.enableDamping = true;
 
-/* Resize */
-window.addEventListener("resize", _ => {
-
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-});
-
 /* ------------------------------------------------------------------------------------------------------ */
-
-function floodlight({
-    renderer,
-    scene,
-    camera,
-    targets,
-}) {
-
-    /* 合成器1（制造全局泛光） */
-    const composer_bloom = new EffectComposer(renderer);                                                              // 效果合成器
-    const pass_render = new RenderPass(scene, camera);                                                                // 后期处理（基本）
-    const pass_bloom = new UnrealBloomPass(
-        renderer.getSize(new three.Vector2),
-        1.5,
-        0.4,
-        0.85,
-    );
-
-    pass_bloom.threshold = 0;
-    pass_bloom.strength = 5;
-    pass_bloom.radius = 0.2;
-
-    composer_bloom.renderToScreen = false;
-    composer_bloom.addPass(pass_render);
-    composer_bloom.addPass(pass_bloom);
-    composer_bloom.setSize(...renderer.getSize(new three.Vector2).toArray());
-
-    /* 合成器2（制造局部泛光） */
-    const pass_final = new ShaderPass(
-        new three.ShaderMaterial({
-            uniforms: {
-                baseTexture: { value: null },
-                bloomTexture: { value: composer_bloom.renderTarget2.texture }
-            },
-            vertexShader: "varying vec2 vUv;void main() {vUv = uv;gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );}",
-            fragmentShader: "uniform sampler2D baseTexture;uniform sampler2D bloomTexture;varying vec2 vUv;void main() {gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );}",
-            defines: {}
-        }),
-        "baseTexture"
-    );
-
-    pass_final.needsSwap = true;
-
-    const composer_final = new EffectComposer(renderer);
-
-    composer_final.addPass(pass_render);
-    composer_final.addPass(pass_final);
-    composer_final.setSize(window.innerWidth, window.innerHeight);
-
-    const material_black = new three.MeshBasicMaterial({ color: 0x000000 });
-
-    renderer.setAnimationLoop(_ => {
-
-        const materials_map = new Map();
-
-        scene.traverse(object3d => {
-
-            if (!object3d.material) return;
-
-            let is_target = false;
-
-            for (let i = 0; i < targets.length; i++) {
-
-                if (targets[i] !== object3d) continue;
-
-                is_target = true;
-
-                break;
-
-            }
-
-            if (is_target) return;
-
-            const id = object3d.id;
-            const material = object3d.material;
-
-            materials_map.set(id, material);
-
-            object3d.material = material_black;
-
-        });
-
-        scene.fog.color.set(0x000000);
-        scene.background.set(0x000000);
-
-        composer_bloom.render();
-
-        materials_map.forEach((value, key) => {
-
-            scene.getObjectById(key).material = value;
-
-        });
-
-        scene.fog.color.set(0x262837);
-        scene.background.set(0x262837);
-
-        composer_final.render();
-
-    });
-
-    window.addEventListener("resize", _ => {
-
-        const size = renderer.getSize(new three.Vector2).toArray();
-
-        composer_bloom.setSize(...size);
-        composer_final.setSize(...size);
-
-    });
-
-}
-
 /* Fog */
 scene.fog = new three.FogExp2(0x262837, 0.05);
 scene.background = new three.Color(0x262837);
@@ -240,8 +114,8 @@ const helper_color = undefined;
 const helper_opacity = 0.01;
 
 const helper_1 = createSpotLightHelper(spot_light_1, helper_color, helper_opacity);
-const helper_2 = createSpotLightHelper(spot_light_1, helper_color, helper_opacity);
-const helper_3 = createSpotLightHelper(spot_light_1, helper_color, helper_opacity);
+const helper_2 = createSpotLightHelper(spot_light_2, helper_color, helper_opacity);
+const helper_3 = createSpotLightHelper(spot_light_3, helper_color, helper_opacity);
 
 scene.add(helper_1, helper_2, helper_3);
 
@@ -258,7 +132,7 @@ function createSpotLightHelper(light, color, opacity) {
 
 }
 
-/* Spot light helper */
+/* 调试聚光灯 */
 const light_helper_1 = new three.SpotLightHelper(spot_light_1);
 const light_helper_2 = new three.SpotLightHelper(spot_light_2);
 const light_helper_3 = new three.SpotLightHelper(spot_light_3);
@@ -373,9 +247,9 @@ function updateDistance() {
 
 function updateLight() {
 
-    light_shell_1.update();
-    light_shell_2.update();
-    light_shell_3.update();
+    helper_1.update();
+    helper_2.update();
+    helper_3.update();
 
     light_helper_1.update();
     light_helper_2.update();
@@ -393,13 +267,108 @@ function updateLight() {
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* Render */
-const clock = new three.Clock();
+/* 合成器1：制造全局泛光 */
+const composer_bloom = new EffectComposer(renderer); // 效果合成器
+const pass_render = new RenderPass(scene, camera);   // 后期处理（基本）
+const pass_bloom = new UnrealBloomPass(renderer.getSize(new three.Vector2), 1.5, 0.4, 0.85);
 
+pass_bloom.threshold = 0;
+pass_bloom.strength = 5;
+pass_bloom.radius = 0.2;
+
+composer_bloom.renderToScreen = false;
+composer_bloom.addPass(pass_render);
+composer_bloom.addPass(pass_bloom);
+composer_bloom.setSize(window.innerWidth, window.innerHeight);
+
+/* 合成器2：制造局部泛光 */
+const pass_final = new ShaderPass(
+    new three.ShaderMaterial({
+        uniforms: {
+            baseTexture: { value: null },
+            bloomTexture: { value: composer_bloom.renderTarget2.texture },
+        },
+        vertexShader: "varying vec2 vUv;void main() {vUv = uv;gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );}",
+        fragmentShader: "uniform sampler2D baseTexture;uniform sampler2D bloomTexture;varying vec2 vUv;void main() {gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );}",
+        defines: {}
+    }),
+    "baseTexture"
+);
+
+pass_final.needsSwap = true;
+
+const composer_final = new EffectComposer(renderer);
+
+composer_final.addPass(pass_render);
+composer_final.addPass(pass_final);
+composer_final.setSize(window.innerWidth, window.innerHeight);
+
+const flood_object3d = [helper_1.cone, helper_2.cone, helper_3.cone];
+const flood_object3d_materials = new Map();
+
+flood_object3d.forEach(object3d => {
+
+    object3d.traverse(object3d => {
+
+        if (!object3d.material) return;
+
+        flood_object3d_materials.set(object3d.id, object3d.material);
+
+    });
+
+});
+
+const all_object3d_materials = new Map();
+
+scene.traverse(object3d => {
+
+    if (!object3d.material) return;
+
+    all_object3d_materials.set(object3d.id, object3d.material);
+
+});
+
+const material_0x000000 = new three.MeshBasicMaterial({ color: 0x000000 });
+
+const clock = new three.Clock();
 let previous_time = 0;
 let elapsed_time = 0;
 let delta_time = 0;
 
 renderer.setAnimationLoop(function loop() {
+
+    /*  */
+    scene.traverse(object3d => {
+
+        if (!object3d.material) return;
+
+        object3d.material = material_0x000000;
+
+    });
+
+    flood_object3d.forEach(object3d => {
+
+        object3d.traverse(object3d => {
+
+            if (!object3d.material) return;
+
+            object3d.material = flood_object3d_materials.get(object3d.id);
+
+        });
+
+    });
+
+    scene.fog.color.set(0x000000);
+    scene.background.set(0x000000);
+
+    /*  */
+    composer_bloom.render();
+
+    /*  */
+    all_object3d_materials.forEach((material, id) => scene.getObjectById(id).material = material);
+
+    scene.fog.color.set(0x262837);
+    scene.background.set(0x262837);
 
     /* Rotate tetrahedron */
     elapsed_time = clock.getElapsedTime();
@@ -415,9 +384,24 @@ renderer.setAnimationLoop(function loop() {
     /* Update Controls */
     controls.update();
 
-    /* Render */
-    renderer.render(scene, camera);
+    /*  */
+    composer_final.render();
 
 });
 
-floodlight({ renderer, scene, camera, targets: [helper_1.cone, helper_2.cone, helper_3.cone] });
+/* Resize */
+window.addEventListener("resize", _ => {
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(width, height);
+
+    composer_bloom.setSize(width, height);
+    composer_final.setSize(width, height);
+
+});
