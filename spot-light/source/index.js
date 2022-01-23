@@ -103,8 +103,8 @@ function floodlight({
     );
 
     pass_bloom.threshold = 0;
-    pass_bloom.strength = 10;
-    pass_bloom.radius = 0.5;
+    pass_bloom.strength = 5;
+    pass_bloom.radius = 0.2;
 
     composer_bloom.renderToScreen = false;
     composer_bloom.addPass(pass_render);
@@ -166,6 +166,9 @@ function floodlight({
 
         });
 
+        scene.fog.color.set(0x000000);
+        scene.background.set(0x000000);
+
         composer_bloom.render();
 
         materials_map.forEach((value, key) => {
@@ -173,6 +176,9 @@ function floodlight({
             scene.getObjectById(key).material = value;
 
         });
+
+        scene.fog.color.set(0x262837);
+        scene.background.set(0x262837);
 
         composer_final.render();
 
@@ -190,8 +196,8 @@ function floodlight({
 }
 
 /* Fog */
-// scene.fog = new three.FogExp2(0x262837, 0.08);
-// scene.background = new three.Color(0x262837);
+scene.fog = new three.FogExp2(0x262837, 0.05);
+scene.background = new three.Color(0x262837);
 
 // gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
 
@@ -300,7 +306,7 @@ const debug_options = {
     radius: 1.6,
     angle: 0.4,
     penumbra: 1,
-    decay: 0,
+    decay: 1,
     distance: 15,
 };
 
