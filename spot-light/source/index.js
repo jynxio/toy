@@ -6,6 +6,8 @@ import * as three from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -17,7 +19,7 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import SpotLightHelper from "./SpotLightHelper";
 
 import GUI from "lil-gui";
-
+// TODO 调整光的亮度，调整光源的位置、动画，。
 /* ------------------------------------------------------------------------------------------------------ */
 /* GUI */
 const gui = new GUI();
@@ -27,10 +29,36 @@ const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = three.sRGBEncoding;
+renderer.toneMapping = three.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = three.PCFSoftShadowMap;
 
 document.body.append(renderer.domElement);
+
+gui.add(renderer, "toneMappingExposure").min(0).max(10).step(0.01).name("ToneMappingExposure");
+gui.add(renderer, "toneMapping", {
+    No: three.NoToneMapping,
+    Linear: three.LinearToneMapping,
+    Reinhard: three.ReinhardToneMapping,
+    Cineon: three.CineonToneMapping,
+    ACESFilmic: three.ACESFilmicToneMapping
+}).onFinishChange(_ => {
+
+    renderer.toneMapping = Number(renderer.toneMapping);
+
+    scene.traverse(item => {
+
+        if (item instanceof three.Mesh === false) return;
+        if (item.material instanceof three.MeshStandardMaterial === false) return;
+
+        item.material.needsUpdate = true;
+
+    });
+
+});
 
 /* Scene */
 const scene = new three.Scene();
@@ -54,16 +82,28 @@ scene.background = new three.Color(0x262837);
 
 gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
 
-/* Tetrahedron */
-const tetrahedron = new three.Mesh(
-    new three.TetrahedronGeometry(1, 0),
-    new three.MeshStandardMaterial(),
-);
+/* Model */
+new GLTFLoader().load("/static/model/scene.glb", gltf => {
 
-tetrahedron.castShadow = true;
-tetrahedron.receiveShadow = true;
+    const model = gltf.scene;
 
-scene.add(tetrahedron);
+    model.scale.set(0.2, 0.2, 0.2);
+
+    model.traverse(item => {
+
+        if (item instanceof three.Mesh === false) return;
+        if (item.material instanceof three.MeshStandardMaterial === false) return;
+
+        item.castShadow = true;
+        item.receiveShadow = true;
+
+        other_object3d_map.set(item, item.material);
+
+    });
+
+    scene.add(model);
+
+});
 
 /* Ground */
 const ground = new three.Mesh(
@@ -71,27 +111,25 @@ const ground = new three.Mesh(
     new three.MeshStandardMaterial({ color: 0x262837 }),
 );
 
-ground.position.set(0, -2, 0);
 ground.receiveShadow = true;
 
 scene.add(ground);
 
 /* Light */
-const ambient_light = new three.AmbientLight(0xffffff, 0.05);
+const ambient_light = new three.AmbientLight(0xffffff, 1); // 0.05
 
 scene.add(ambient_light);
 
-const spot_light_1 = new SpotLight(0xffffff, tetrahedron);
-const spot_light_2 = new SpotLight(0xffffff, tetrahedron);
-const spot_light_3 = new SpotLight(0xffffff, tetrahedron);
+const spot_light_1 = new SpotLight(0xffffff);
+const spot_light_2 = new SpotLight(0xffffff);
+const spot_light_3 = new SpotLight(0xffffff);
 
 scene.add(spot_light_1, spot_light_2, spot_light_3);
 
-function SpotLight(color, target) {
+function SpotLight(color) {
 
     const light = new three.SpotLight(color);
 
-    light.target = target;
     light.angle = 0.3;              // 照射范围。
     light.penumbra = 1;             // 半影衰减百分比。
     light.decay = 0;                // 随着光照距离的衰减量。
@@ -101,6 +139,10 @@ function SpotLight(color, target) {
     light.shadow.mapSize.y = 1024;  // 阴影贴图的y。
     light.shadow.camera.near = 0.1; // 阴影相机近端面界限。
     light.shadow.camera.far = 20;   // 阴影相机远端面界限。
+
+    light.target.position.set(0, 0, 0);
+
+    scene.add(light.target);
 
     return light;
 
@@ -148,6 +190,7 @@ const debug_options = {
     penumbra: 1,
     decay: 1,
     distance: 15,
+    intensity: 80,
 };
 
 updateHeight(debug_options.height);
@@ -156,6 +199,7 @@ updateAngle(debug_options.angle);
 updatePenumbra(debug_options.penumbra);
 updateDecay(debug_options.decay);
 updateDistance(debug_options.distance);
+updateIntensity(debug_options.intensity);
 
 gui.add(debug_options, "height").min(0).max(20).step(0.01).name("Height").onChange(updateHeight);
 gui.add(debug_options, "radius").min(0).max(20).step(0.01).name("Radius").onChange(updateRadius);
@@ -163,6 +207,7 @@ gui.add(debug_options, "angle").min(0).max(Math.PI / 2).step(Math.PI / 200).name
 gui.add(debug_options, "penumbra").min(0).max(1).step(0.01).name("Penumbra").onChange(updatePenumbra);
 gui.add(debug_options, "decay").min(0).max(10).step(0.01).name("Decay").onChange(updateDecay);
 gui.add(debug_options, "distance").min(0).max(50).step(0.01).name("Distance").onChange(updateDistance);
+gui.add(debug_options, "intensity").min(0).max(100).step(1).name("Intensity").onChange(updateIntensity);
 
 function updateHeight() {
 
@@ -241,6 +286,18 @@ function updateDistance() {
 
 }
 
+function updateIntensity() {
+
+    const i = debug_options.intensity;
+
+    spot_light_1.intensity = i;
+    spot_light_2.intensity = i;
+    spot_light_3.intensity = i;
+
+    updateLight();
+
+}
+
 function updateLight() {
 
     helper_1.update();
@@ -303,22 +360,24 @@ const flood_object3d = [helper_1.cone, helper_2.cone, helper_3.cone];
 const flood_object3d_map = new Map();
 const other_object3d_map = new Map();
 
-scene.traverse(object3d => {
+scene.traverse(item => {
 
-    if (!object3d.material) return;
+    if (item instanceof three.Mesh === false) return;
+    if (item.material instanceof three.Material === false) return;
 
-    other_object3d_map.set(object3d, object3d.material);
+    other_object3d_map.set(item, item.material);
 
 });
 
 flood_object3d.forEach(object3d => {
 
-    object3d.traverse(object3d => {
+    object3d.traverse(item => {
 
-        if (!object3d.material) return;
+        if (item instanceof three.Mesh === false) return;
+        if (item.material instanceof three.Material === false) return;
 
-        flood_object3d_map.set(object3d, object3d.material);
-        other_object3d_map.delete(object3d);
+        flood_object3d_map.set(item, item.material);
+        other_object3d_map.delete(item);
 
     });
 
@@ -347,14 +406,6 @@ renderer.setAnimationLoop(function loop() {
 
     scene.fog.color.set(0x262837);
     scene.background.set(0x262837);
-
-    /* Rotate tetrahedron */
-    elapsed_time = clock.getElapsedTime();
-    delta_time = elapsed_time - previous_time;
-    previous_time = elapsed_time;
-
-    tetrahedron.rotateY(delta_time * 1);
-    tetrahedron.rotateZ(delta_time * 1);
 
     /* Update Light's helper */
     updateLight();
