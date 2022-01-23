@@ -40,12 +40,7 @@ document.body.append(renderer.domElement);
 const scene = new three.Scene();
 
 /* Camera */
-const camera = new three.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.01,
-    100,
-);
+const camera = new three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 200);
 
 camera.position.set(0, 5, - 5);
 
@@ -68,24 +63,6 @@ window.addEventListener("resize", _ => {
 });
 
 /* ------------------------------------------------------------------------------------------------------ */
-/* Test */
-const g = new three.ConeGeometry(2, 10, 64, 1);
-const m = new three.MeshBasicMaterial({
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.01,
-    side: three.DoubleSide,
-});
-const p = new three.Mesh(g, m);
-
-m.depthTest = false;
-m.depthWrite = false;
-m.needsUpdate = true;
-
-p.renderOrder = 1;
-p.position.y = 3;
-
-// scene.add(p);
 
 function floodlight({
     renderer,
@@ -203,28 +180,7 @@ scene.background = new three.Color(0x262837);
 
 // gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
 
-/* Lensflare：如果使用Lensflare类，则可以实现更多层级的耀斑。 */
-const texture_loader = new three.TextureLoader();
-const texture_lensflare = texture_loader.load("./static/image/lensflare.png")
-
-const lensflare_material_0xff00ff = new three.SpriteMaterial({ map: texture_lensflare, sizeAttenuation: false, color: new three.Color(0xff00ff) });
-const lensflare_material_0x00ffff = new three.SpriteMaterial({ map: texture_lensflare, sizeAttenuation: false, color: new three.Color(0x00ffff) });
-const lensflare_material_0xffff00 = new three.SpriteMaterial({ map: texture_lensflare, sizeAttenuation: false, color: new three.Color(0xffff00) });
-
-lensflare_material_0xff00ff.depthTest = false;
-lensflare_material_0x00ffff.depthTest = false;
-lensflare_material_0xffff00.depthTest = false;
-lensflare_material_0xff00ff.depthWrite = false;
-lensflare_material_0x00ffff.depthWrite = false;
-lensflare_material_0xffff00.depthWrite = false;
-
-const lensflare_0xff00ff = new three.Sprite(lensflare_material_0xff00ff);
-const lensflare_0x00ffff = new three.Sprite(lensflare_material_0x00ffff);
-const lensflare_0xffff00 = new three.Sprite(lensflare_material_0xffff00);
-
-lensflare_0xff00ff.scale.set(0.2, 0.2, 0.2);
-lensflare_0x00ffff.scale.set(0.2, 0.2, 0.2);
-lensflare_0xffff00.scale.set(0.2, 0.2, 0.2);
+/* Lensflare */
 
 /* Tetrahedron */
 const tetrahedron = new three.Mesh(
@@ -254,15 +210,11 @@ const ambient_light = new three.AmbientLight(0xffffff, 0.05);
 scene.add(ambient_light);
 
 /* Spot light */
-const spot_light_0xff00ff = new SpotLight(0xffffff, tetrahedron);
-const spot_light_0x00ffff = new SpotLight(0xffffff, tetrahedron);
-const spot_light_0xffff00 = new SpotLight(0xffffff, tetrahedron);
+const spot_light_1 = new SpotLight(0xffffff, tetrahedron);
+const spot_light_2 = new SpotLight(0xffffff, tetrahedron);
+const spot_light_3 = new SpotLight(0xffffff, tetrahedron);
 
-spot_light_0xff00ff.add(lensflare_0xff00ff);
-spot_light_0x00ffff.add(lensflare_0x00ffff);
-spot_light_0xffff00.add(lensflare_0xffff00);
-
-scene.add(spot_light_0xff00ff, spot_light_0x00ffff, spot_light_0xffff00);
+scene.add(spot_light_1, spot_light_2, spot_light_3);
 
 function SpotLight(color, target) {
 
@@ -283,39 +235,37 @@ function SpotLight(color, target) {
 
 }
 
-/* Spot light shell */
-const light_shell_1 = new SpotLightHelper(spot_light_0xff00ff, undefined, 0.01);
-const light_shell_2 = new SpotLightHelper(spot_light_0x00ffff, undefined, 0.01);
-const light_shell_3 = new SpotLightHelper(spot_light_0xffff00, undefined, 0.01);
+/* Spot light helper */
+const helper_color = undefined;
+const helper_opacity = 0.01;
 
-light_shell_1.cone.material.blending = three.AdditiveBlending;
-light_shell_1.cone.material.depthTest = false;
-light_shell_1.cone.material.depthWrite = false;
-light_shell_1.cone.material.needsUpdate = true;
-light_shell_1.cone.renderOrder = 1;
+const helper_1 = createSpotLightHelper(spot_light_1, helper_color, helper_opacity);
+const helper_2 = createSpotLightHelper(spot_light_1, helper_color, helper_opacity);
+const helper_3 = createSpotLightHelper(spot_light_1, helper_color, helper_opacity);
 
-light_shell_2.cone.material.blending = three.AdditiveBlending;
-light_shell_2.cone.material.depthTest = false;
-light_shell_2.cone.material.depthWrite = false;
-light_shell_2.cone.material.needsUpdate = true;
-light_shell_2.cone.renderOrder = 1;
+scene.add(helper_1, helper_2, helper_3);
 
-light_shell_3.cone.material.blending = three.AdditiveBlending;
-light_shell_3.cone.material.depthTest = false;
-light_shell_3.cone.material.depthWrite = false;
-light_shell_3.cone.material.needsUpdate = true;
-light_shell_3.cone.renderOrder = 1;
+function createSpotLightHelper(light, color, opacity) {
 
-scene.add(light_shell_1, light_shell_2, light_shell_3);
+    const helper = new SpotLightHelper(light, color, opacity);
+    const material = helper.cone.material;
+
+    material.blending = three.AdditiveBlending;
+    material.depthWrite = false;
+    material.needsUpdate = true;
+
+    return helper;
+
+}
 
 /* Spot light helper */
-const light_helper_1 = new three.SpotLightHelper(spot_light_0xff00ff);
-const light_helper_2 = new three.SpotLightHelper(spot_light_0x00ffff);
-const light_helper_3 = new three.SpotLightHelper(spot_light_0xffff00);
+const light_helper_1 = new three.SpotLightHelper(spot_light_1);
+const light_helper_2 = new three.SpotLightHelper(spot_light_2);
+const light_helper_3 = new three.SpotLightHelper(spot_light_3);
 
-const camera_helper_1 = new three.CameraHelper(spot_light_0xff00ff.shadow.camera);
-const camera_helper_2 = new three.CameraHelper(spot_light_0x00ffff.shadow.camera);
-const camera_helper_3 = new three.CameraHelper(spot_light_0xffff00.shadow.camera);
+const camera_helper_1 = new three.CameraHelper(spot_light_1.shadow.camera);
+const camera_helper_2 = new three.CameraHelper(spot_light_2.shadow.camera);
+const camera_helper_3 = new three.CameraHelper(spot_light_3.shadow.camera);
 
 // scene.add(light_helper_1, light_helper_2, light_helper_3);
 // scene.add(camera_helper_1, camera_helper_2, camera_helper_3);
@@ -348,9 +298,9 @@ function updateHeight() {
 
     const h = debug_options.height;
 
-    spot_light_0xff00ff.position.y = h;
-    spot_light_0x00ffff.position.y = h;
-    spot_light_0xffff00.position.y = h;
+    spot_light_1.position.y = h;
+    spot_light_2.position.y = h;
+    spot_light_3.position.y = h;
 
     updateLight();
 
@@ -360,14 +310,14 @@ function updateRadius() {
 
     const r = debug_options.radius;
 
-    spot_light_0xff00ff.position.x = 0;
-    spot_light_0xff00ff.position.z = r;
+    spot_light_1.position.x = 0;
+    spot_light_1.position.z = r;
 
-    spot_light_0x00ffff.position.x = 2 * r / Math.sqrt(3);
-    spot_light_0x00ffff.position.z = - r;
+    spot_light_2.position.x = 2 * r / Math.sqrt(3);
+    spot_light_2.position.z = - r;
 
-    spot_light_0xffff00.position.x = - 2 * r / Math.sqrt(3);
-    spot_light_0xffff00.position.z = - r;
+    spot_light_3.position.x = - 2 * r / Math.sqrt(3);
+    spot_light_3.position.z = - r;
 
     updateLight();
 
@@ -377,9 +327,9 @@ function updateAngle() {
 
     const a = debug_options.angle;
 
-    spot_light_0xff00ff.angle = a;
-    spot_light_0x00ffff.angle = a;
-    spot_light_0xffff00.angle = a;
+    spot_light_1.angle = a;
+    spot_light_2.angle = a;
+    spot_light_3.angle = a;
 
     updateLight();
 
@@ -389,9 +339,9 @@ function updatePenumbra() {
 
     const p = debug_options.penumbra;
 
-    spot_light_0xff00ff.penumbra = p;
-    spot_light_0x00ffff.penumbra = p;
-    spot_light_0xffff00.penumbra = p;
+    spot_light_1.penumbra = p;
+    spot_light_2.penumbra = p;
+    spot_light_3.penumbra = p;
 
     updateLight();
 
@@ -401,9 +351,9 @@ function updateDecay() {
 
     const d = debug_options.decay;
 
-    spot_light_0xff00ff.decay = d;
-    spot_light_0x00ffff.decay = d;
-    spot_light_0xffff00.decay = d;
+    spot_light_1.decay = d;
+    spot_light_2.decay = d;
+    spot_light_3.decay = d;
 
     updateLight();
 
@@ -413,9 +363,9 @@ function updateDistance() {
 
     const d = debug_options.distance;
 
-    spot_light_0xff00ff.distance = d;
-    spot_light_0x00ffff.distance = d;
-    spot_light_0xffff00.distance = d;
+    spot_light_1.distance = d;
+    spot_light_2.distance = d;
+    spot_light_3.distance = d;
 
     updateLight();
 
@@ -431,9 +381,9 @@ function updateLight() {
     light_helper_2.update();
     light_helper_3.update();
 
-    spot_light_0xff00ff.shadow.camera.updateProjectionMatrix();
-    spot_light_0x00ffff.shadow.camera.updateProjectionMatrix();
-    spot_light_0xffff00.shadow.camera.updateProjectionMatrix();
+    spot_light_1.shadow.camera.updateProjectionMatrix();
+    spot_light_2.shadow.camera.updateProjectionMatrix();
+    spot_light_3.shadow.camera.updateProjectionMatrix();
 
     camera_helper_1.update();
     camera_helper_2.update();
@@ -470,4 +420,4 @@ renderer.setAnimationLoop(function loop() {
 
 });
 
-floodlight({ renderer, scene, camera, targets: [light_shell_1.cone, light_shell_2.cone, light_shell_3.cone] });
+floodlight({ renderer, scene, camera, targets: [helper_1.cone, helper_2.cone, helper_3.cone] });
