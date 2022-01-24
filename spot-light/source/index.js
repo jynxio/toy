@@ -77,7 +77,7 @@ controls.enableDamping = true;
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* Fog */
-// scene.fog = new three.FogExp2(0x262837, 0.04);
+scene.fog = new three.FogExp2(0x262837, 0.04);
 scene.background = new three.Color(0x262837);
 
 // gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
@@ -183,64 +183,55 @@ const camera_helper_3 = new three.CameraHelper(spot_light_3.shadow.camera);
 // scene.add(camera_helper_1, camera_helper_2, camera_helper_3);
 
 const debug_options = {
-    y: 10,
-    z: -5,
-    xStep: 2,
+    height: 12,
+    radius: 4,
     angle: 0.3,
     penumbra: 1,
-    decay: 1,
-    distance: 15,
-    intensity: 80,
+    decay: 0,
+    distance: 50,
+    intensity: 10,
 };
 
-updateY(debug_options.y);
-updateZ(debug_options.z);
-updateXStep(debug_options.xStep);
+updateHeight(debug_options.height);
+updateRadius(debug_options.radius);
 updateAngle(debug_options.angle);
 updatePenumbra(debug_options.penumbra);
 updateDecay(debug_options.decay);
 updateDistance(debug_options.distance);
 updateIntensity(debug_options.intensity);
 
-gui.add(debug_options, "y").min(0).max(50).step(0.1).name("Y").onChange(updateY);
-gui.add(debug_options, "z").min(- 20).max(20).step(0.1).name("Z").onChange(updateZ);
-gui.add(debug_options, "xStep").min(0).max(10).step(0.1).name("X step").onChange(updateXStep);
+gui.add(debug_options, "height").min(0).max(100).step(0.1).name("Height").onChange(updateHeight);
+gui.add(debug_options, "radius").min(0).max(50).step(0.1).name("Radius").onChange(updateRadius);
 gui.add(debug_options, "angle").min(0).max(Math.PI / 2).step(Math.PI / 200).name("Angle").onChange(updateAngle);
 gui.add(debug_options, "penumbra").min(0).max(1).step(0.01).name("Penumbra").onChange(updatePenumbra);
 gui.add(debug_options, "decay").min(0).max(10).step(0.01).name("Decay").onChange(updateDecay);
 gui.add(debug_options, "distance").min(0).max(50).step(0.01).name("Distance").onChange(updateDistance);
 gui.add(debug_options, "intensity").min(0).max(100).step(1).name("Intensity").onChange(updateIntensity);
 
-function updateY() {
+function updateHeight() {
 
-    const y = debug_options.y;
+    const h = debug_options.height;
 
-    spot_light_1.position.y = y;
-    spot_light_2.position.y = y;
-    spot_light_3.position.y = y;
-
-    updateLight();
-
-}
-
-function updateZ() {
-
-    const z = debug_options.z;
-
-    spot_light_1.position.z = z;
-    spot_light_2.position.z = z;
-    spot_light_3.position.z = z;
+    spot_light_1.position.y = h;
+    spot_light_2.position.y = h;
+    spot_light_3.position.y = h;
 
     updateLight();
 
 }
 
-function updateXStep() {
+function updateRadius() {
 
-    const x_step = debug_options.xStep;
+    const r = debug_options.radius;
 
-    spot_light_1.position.x = - x_step;
-    spot_light_3.position.x = x_step;
+    spot_light_1.position.x = 0;
+    spot_light_1.position.z = - r;
+
+    spot_light_2.position.x = 3 ** 0.5 / 2 * r;
+    spot_light_2.position.z = r / 2;
+
+    spot_light_3.position.x = - spot_light_2.position.x;
+    spot_light_3.position.z = spot_light_2.position.z;
 
     updateLight();
 
@@ -403,7 +394,7 @@ renderer.setAnimationLoop(function loop() {
     /*  */
     for (const object3d of other_object3d_map.keys()) object3d.material = material_0x000000;
 
-    // scene.fog.color.set(0x000000);
+    scene.fog.color.set(0x000000);
     scene.background.set(0x000000);
 
     /*  */
@@ -412,7 +403,7 @@ renderer.setAnimationLoop(function loop() {
     /*  */
     other_object3d_map.forEach((material, object3d) => object3d.material = material);
 
-    // scene.fog.color.set(0x262837);
+    scene.fog.color.set(0x262837);
     scene.background.set(0x262837);
 
     /* Update Light's helper */
