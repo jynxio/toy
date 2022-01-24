@@ -50,3 +50,14 @@ export default function ({
     return light;
 
 }
+
+/**
+ * 
+ * @param {*} center 
+ * @param {*} radius 
+ */
+function animate(center, radius) {
+
+
+
+}
