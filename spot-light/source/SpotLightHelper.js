@@ -30,7 +30,7 @@ export default class SpotLightHelper extends three.Object3D {
 
         this.transparent = opacity !== 1;
 
-        const geometry = new three.ConeGeometry(1, 1, 32, 1, false, 0, Math.PI * 2)
+        const geometry = new three.ConeGeometry(1, 1, 512, 1, false, 0, Math.PI * 2)
             .translate(0, -0.5, 0)
             .rotateX(-Math.PI / 2);
         const material = new three.MeshBasicMaterial({ transparent: true });

@@ -64,7 +64,7 @@ gui.add(renderer, "toneMapping", {
 const scene = new three.Scene();
 
 /* Camera */
-const camera = new three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 200);
+const camera = new three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
 
 camera.position.set(0, 5, 5);
 
@@ -77,7 +77,7 @@ controls.enableDamping = true;
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* Fog */
-// scene.fog = new three.FogExp2(0x262837, 0.05);
+// scene.fog = new three.FogExp2(0x262837, 0.04);
 scene.background = new three.Color(0x262837);
 
 // gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
@@ -115,14 +115,14 @@ ground.receiveShadow = true;
 
 scene.add(ground);
 
-/* Light：用雾紫色的光。 */
+/* Light：用雾紫色的光，灯芯使用镜头光晕（使用多重光片会更真实）。 */
 const ambient_light = new three.AmbientLight(0xffffff, 1); // 0.05
 
 scene.add(ambient_light);
-
-const spot_light_1 = new SpotLight(0xffffff);
-const spot_light_2 = new SpotLight(0xffffff);
-const spot_light_3 = new SpotLight(0xffffff);
+const test_color = 0xffffff;
+const spot_light_1 = new SpotLight(test_color);
+const spot_light_2 = new SpotLight(test_color);
+const spot_light_3 = new SpotLight(test_color);
 
 scene.add(spot_light_1, spot_light_2, spot_light_3);
 
@@ -193,6 +193,9 @@ const debug_options = {
     intensity: 80,
 };
 
+updateY(debug_options.y);
+updateZ(debug_options.z);
+updateXStep(debug_options.xStep);
 updateAngle(debug_options.angle);
 updatePenumbra(debug_options.penumbra);
 updateDecay(debug_options.decay);
@@ -208,11 +211,40 @@ gui.add(debug_options, "decay").min(0).max(10).step(0.01).name("Decay").onChange
 gui.add(debug_options, "distance").min(0).max(50).step(0.01).name("Distance").onChange(updateDistance);
 gui.add(debug_options, "intensity").min(0).max(100).step(1).name("Intensity").onChange(updateIntensity);
 
-function updateY() { }
+function updateY() {
 
-function updateZ() { }
+    const y = debug_options.y;
 
-function updateXStep() { }
+    spot_light_1.position.y = y;
+    spot_light_2.position.y = y;
+    spot_light_3.position.y = y;
+
+    updateLight();
+
+}
+
+function updateZ() {
+
+    const z = debug_options.z;
+
+    spot_light_1.position.z = z;
+    spot_light_2.position.z = z;
+    spot_light_3.position.z = z;
+
+    updateLight();
+
+}
+
+function updateXStep() {
+
+    const x_step = debug_options.xStep;
+
+    spot_light_1.position.x = - x_step;
+    spot_light_3.position.x = x_step;
+
+    updateLight();
+
+}
 
 function updateAngle() {
 
@@ -302,8 +334,8 @@ const pass_render = new RenderPass(scene, camera);   // 后期处理（基本）
 const pass_bloom = new UnrealBloomPass(renderer.getSize(new three.Vector2), 1.5, 0.4, 0.85);
 
 pass_bloom.threshold = 0;
-pass_bloom.strength = 5;
-pass_bloom.radius = 0.2;
+pass_bloom.strength = 2;
+pass_bloom.radius = 0.5;
 
 composer_bloom.renderToScreen = false;
 composer_bloom.addPass(pass_render);
