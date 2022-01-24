@@ -16,10 +16,13 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
+import SpotLight from "./SpotLight";
+
 import SpotLightHelper from "./SpotLightHelper";
 
 import GUI from "lil-gui";
 // TODO 调整光的亮度，调整光源的位置、动画，。
+// TODO 考虑一下使用新的后期处理库来处理泛光！它有文档！太棒了！
 /* ------------------------------------------------------------------------------------------------------ */
 /* GUI */
 const gui = new GUI();
@@ -119,33 +122,12 @@ scene.add(ground);
 const ambient_light = new three.AmbientLight(0xffffff, 1); // 0.05
 
 scene.add(ambient_light);
-const test_color = 0xffffff;
-const spot_light_1 = new SpotLight(test_color);
-const spot_light_2 = new SpotLight(test_color);
-const spot_light_3 = new SpotLight(test_color);
+
+const spot_light_1 = new SpotLight();
+const spot_light_2 = new SpotLight();
+const spot_light_3 = new SpotLight();
 
 scene.add(spot_light_1, spot_light_2, spot_light_3);
-
-function SpotLight(color) {
-
-    const light = new three.SpotLight(color);
-
-    light.angle = 0.3;              // 照射范围。
-    light.penumbra = 1;             // 半影衰减百分比。
-    light.decay = 0;                // 随着光照距离的衰减量。
-    light.distance = 20;            // 光照距离。
-    light.castShadow = true;        // 启用阴影投射。
-    light.shadow.mapSize.x = 1024;  // 阴影贴图的x。
-    light.shadow.mapSize.y = 1024;  // 阴影贴图的y。
-    light.shadow.camera.near = 0.1; // 阴影相机近端面界限。
-    light.shadow.camera.far = 20;   // 阴影相机远端面界限。
-    light.target.position.set(0, 0, 0);
-
-    scene.add(light.target);
-
-    return light;
-
-}
 
 /* Helper */
 const helper_color = undefined;
