@@ -86,12 +86,13 @@ scene.background = new three.Color(0x262837);
 // gui.add(scene.fog, "density").min(0).max(1).min(0.00001).name("Fog");
 
 /* Model */
+let mixer;
+
 new GLTFLoader().load("/static/model/scene.glb", gltf => {
 
     const model = gltf.scene;
 
     model.scale.set(0.2, 0.2, 0.2);
-
     model.traverse(item => {
 
         if (item instanceof three.Mesh === false) return;
@@ -103,6 +104,12 @@ new GLTFLoader().load("/static/model/scene.glb", gltf => {
         other_object3d_map.set(item, item.material);
 
     });
+
+    mixer = new three.AnimationMixer(model);
+
+    const action = mixer.clipAction(gltf.animations[0]);
+
+    action.play();
 
     scene.add(model);
 
@@ -373,25 +380,31 @@ let delta_time = 0;
 
 renderer.setAnimationLoop(function loop() {
 
-    /*  */
+    /* CLock。 */
+    elapsed_time = clock.getElapsedTime();
+    delta_time = elapsed_time - previous_time;
+    previous_time = elapsed_time;
+
+    /* 渲染局部泛光。 */
     for (const object3d of other_object3d_map.keys()) object3d.material = material_0x000000;
 
     scene.fog.color.set(0x000000);
     scene.background.set(0x000000);
 
-    /*  */
     composer_bloom.render();
 
-    /*  */
     other_object3d_map.forEach((material, object3d) => object3d.material = material);
 
     scene.fog.color.set(0x262837);
     scene.background.set(0x262837);
 
-    /* Update Light's helper */
+    /* 模型动画。 */
+    mixer && mixer.update(delta_time);
+
+    /* 更新Light的helper。 */
     updateLight();
 
-    /* Update Controls */
+    /* 更新ontrols。 */
     controls.update();
 
     /*  */

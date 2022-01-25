@@ -1,7 +1,5 @@
 import * as three from "three";
 
-// TODO 写动画
-
 /**
  * SpotLight。
  * @param   {Object}        [options = {}]                       - 参数集合。
@@ -48,16 +46,5 @@ export default function ({
     light.target.position.set(...targetPosition);
 
     return light;
-
-}
-
-/**
- * 
- * @param {*} center 
- * @param {*} radius 
- */
-function animate(center, radius) {
-
-
 
 }
