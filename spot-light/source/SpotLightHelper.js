@@ -20,15 +20,9 @@ export default class SpotLightHelper extends three.Object3D {
         this.matrix = light.matrixWorld;
         this.matrixAutoUpdate = false;
 
-        this.color = color;
-
-        this.opacity = opacity;
-
         this.color = typeof (color) === "number" ? color : this.light.color.getHex();
 
         this.opacity = typeof (opacity) === "number" ? opacity : 1;
-
-        this.transparent = opacity !== 1;
 
         const geometry = new three.ConeGeometry(1, 1, 512, 1, false, 0, Math.PI * 2)
             .translate(0, -0.5, 0)
