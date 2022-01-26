@@ -23,6 +23,7 @@ import SpotLightHelper from "./SpotLightHelper";
 import GUI from "lil-gui";
 // TODO 调整光的亮度，调整光源的位置、动画，。
 // TODO 考虑一下使用新的后期处理库来处理泛光！它有文档！太棒了！
+// TODO SpotLight2中的效果还是很好看的...要不还是加个那种动画和颜色光吧.
 /* ------------------------------------------------------------------------------------------------------ */
 /* GUI */
 const gui = new GUI();
