@@ -24,7 +24,7 @@ import GUI from "lil-gui";
 // TODO 调整光的亮度，调整光源的位置、动画，。
 // TODO 考虑一下使用新的后期处理库来处理泛光！它有文档！太棒了！
 // TODO SpotLight2中的效果还是很好看的...要不还是加个那种动画和颜色光吧.
-// TODO 哪怕radius为0，只要strength够大，也有光晕！而且radius为0时的光晕是最好看的，radius一大就会变模糊了
+// TODO 哪怕radius为0，只要strength够大，也有光晕！而且radius为0时的光晕是最好看的，radius一大就会变模糊了。曝光度也能调整光亮！toneMappingExposure
 /* ------------------------------------------------------------------------------------------------------ */
 /* GUI */
 const gui = new GUI();
