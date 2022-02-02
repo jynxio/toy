@@ -8,12 +8,12 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 /* ------------------------------------------------------------------------------------------------------ */
 /* Renderer */
-const renderer = new three.WebGLRenderer({ antialias: window.devicePixelRatio < 2 });
+const renderer = new three.WebGLRenderer( { antialias: window.devicePixelRatio < 2 } );
 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
+renderer.setSize( window.innerWidth, window.innerHeight );
 
-document.body.append(renderer.domElement);
+document.body.append( renderer.domElement );
 
 /* Scene */
 const scene = new three.Scene();
@@ -26,30 +26,30 @@ const camera = new three.PerspectiveCamera(
     100,
 );
 
-scene.add(camera);
+scene.add( camera );
 
 /* Controls */
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new OrbitControls( camera, renderer.domElement );
 
 controls.enableDamping = true;
-controls.target = new three.Vector3(0, 0, 0.01);
+controls.target = new three.Vector3( 0, 0, 0.01 );
 
 /* Resize */
-window.addEventListener("resize", _ => {
+window.addEventListener( "resize", _ => {
 
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
+    renderer.setSize( window.innerWidth, window.innerHeight);
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-});
+} );
 
 /* Render */
-renderer.setAnimationLoop(function loop() {
+renderer.setAnimationLoop( function loop() {
 
     controls.update();
 
-    renderer.render(scene, camera);
+    renderer.render( scene, camera );
 
-});
+} );
